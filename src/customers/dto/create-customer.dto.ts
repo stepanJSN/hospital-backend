@@ -1,17 +1,13 @@
-import { IsDate, IsEmail, IsInt, IsString, Max, Min } from 'class-validator';
+import { IsEmail, IsInt, IsString } from 'class-validator';
 
 export class CreateCustomerDto {
   @IsEmail()
   email: string;
 
   @IsString()
-  @Min(3)
-  @Max(15)
   name: string;
 
   @IsString()
-  @Min(3)
-  @Max(15)
   surname: string;
 
   @IsInt()
@@ -20,6 +16,6 @@ export class CreateCustomerDto {
   @IsString()
   password: string;
 
-  @IsDate()
+  @IsString()
   birthday: Date;
 }
