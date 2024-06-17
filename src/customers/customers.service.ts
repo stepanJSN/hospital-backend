@@ -29,6 +29,14 @@ export class CustomersService {
     });
   }
 
+  findOneByEmail(email: string) {
+    return this.prisma.customer.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+
   // update(id: number, updateCustomerDto: UpdateCustomerDto) {
   //   return `This action updates a #${id} customer`;
   // }
