@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-// import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -37,11 +37,28 @@ export class CustomersService {
     });
   }
 
-  // update(id: number, updateCustomerDto: UpdateCustomerDto) {
-  //   return `This action updates a #${id} customer`;
-  // }
+  async update(id: string, updateCustomerDto: UpdateCustomerDto) {
+    const data = { ...updateCustomerDto };
+    if (updateCustomerDto.birthday) {
+      data.birthday = new Date(updateCustomerDto.birthday);
+    } else {
+      delete data.birthday;
+    }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} customer`;
-  // }
+    const updateUser = await this.prisma.customer.update({
+      where: {
+        id,
+      },
+      data,
+    });
+    return updateUser;
+  }
+
+  async remove(id: string) {
+    await this.prisma.customer.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
