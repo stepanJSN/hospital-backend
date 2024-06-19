@@ -8,11 +8,15 @@ import {
   UsePipes,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/enums/role.enum';
+import { RoleGuard } from 'src/auth/role.guard';
 // import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
@@ -26,6 +30,8 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto);
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   @Get()
   findAll() {
     return this.customersService.findAll();
