@@ -37,11 +37,15 @@ export class CustomersController {
     return this.customersService.findAll();
   }
 
+  @Roles(Role.Admin, Role.User, Role.Staff)
+  @UseGuards(RoleGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customersService.findOneById(id);
   }
 
+  @Roles(Role.User)
+  @UseGuards(RoleGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -50,6 +54,7 @@ export class CustomersController {
     return this.customersService.update(id, updateCustomerDto);
   }
 
+  @Roles(Role.User, Role.Admin)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customersService.remove(id);

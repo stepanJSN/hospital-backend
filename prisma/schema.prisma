@@ -26,5 +26,23 @@ model Customer {
   telephone Int?
   birthday DateTime
   password String
+}
+
+model Staff {
+  id String @id @default(uuid())
+  email String @unique
+  name String
+  surname String
+  telephone Int?
+  specialization Specialization? @relation(fields: [id], references: [id])
+  birthday DateTime
+  password String
+  experience Float?
   role Role @default(User)
+}
+
+model Specialization {
+  id String @id @default(uuid())
+  title String
+  staff Staff[]
 }
