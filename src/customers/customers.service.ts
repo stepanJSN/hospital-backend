@@ -34,6 +34,11 @@ export class CustomersService {
       where: {
         email,
       },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+      },
     });
   }
 

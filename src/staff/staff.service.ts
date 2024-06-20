@@ -26,6 +26,11 @@ export class StaffService {
       where: {
         id,
       },
+      select: {
+        password: false,
+        role: false,
+        birthday: false,
+      },
     });
   }
 
@@ -33,6 +38,12 @@ export class StaffService {
     return this.prisma.staff.findUnique({
       where: {
         email,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        password: true,
       },
     });
   }

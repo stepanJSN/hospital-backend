@@ -6,9 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { StaffModule } from 'src/staff/staff.module';
 
 @Module({
   imports: [
+    StaffModule,
     CustomersModule,
     JwtModule.register({
       global: true,

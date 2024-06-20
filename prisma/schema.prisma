@@ -15,7 +15,13 @@ datasource db {
 
 enum Role {
   User
+  Staff
   Admin
+}
+
+enum Gender {
+  male
+  female
 }
 
 model Customer {
@@ -26,6 +32,7 @@ model Customer {
   telephone Int?
   birthday DateTime
   password String
+  gender Gender @default(male)
 }
 
 model Staff {
@@ -36,9 +43,10 @@ model Staff {
   telephone Int?
   specialization Specialization? @relation(fields: [id], references: [id])
   birthday DateTime
+  gender Gender
   password String
   experience Float?
-  role Role @default(User)
+  role Role @default(Staff)
 }
 
 model Specialization {

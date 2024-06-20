@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -24,6 +25,9 @@ export class CreateStaffDto {
 
   @IsString()
   birthday: Date;
+
+  @IsIn(['male', 'female'])
+  gender: 'male' | 'female';
 
   @IsOptional()
   @IsString()

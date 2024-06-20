@@ -15,7 +15,7 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from 'src/auth/enums/role.enum';
+import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/auth/role.guard';
 // import { UpdateCustomerDto } from './dto/update-customer.dto';
 
