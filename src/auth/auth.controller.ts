@@ -10,12 +10,12 @@ export class AuthController {
   @Public()
   @Post('signin')
   signIn(@Body() signInDto: SignInDto) {
-    if (signInDto.role === 'customer') {
+    if (signInDto.role === 'Customer') {
       return this.authService.signInCustomer(
         signInDto.email,
         signInDto.password,
       );
     }
-    return;
+    return this.authService.signInStaff(signInDto.email, signInDto.password);
   }
 }

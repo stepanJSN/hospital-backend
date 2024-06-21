@@ -38,7 +38,7 @@ export class AuthService {
   ): Promise<{ access_token: string }> {
     const user = await this.customerService.findOneByEmail(email);
     return this.verifyPasswordsAndGenerateToken(
-      { ...user, role: Role.User },
+      { ...user, role: Role.Customer },
       pass,
     );
   }

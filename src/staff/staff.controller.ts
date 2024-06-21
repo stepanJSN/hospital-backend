@@ -14,15 +14,12 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Public } from 'src/auth/decorators/public.decorator';
-
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
-  // @Roles(Role.Admin)
-  // @UseGuards(RoleGuard)
-  @Public()
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   @Post()
   create(@Body() createStaffDto: CreateStaffDto) {
     return this.staffService.create(createStaffDto);

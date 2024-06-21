@@ -37,14 +37,14 @@ export class CustomersController {
     return this.customersService.findAll();
   }
 
-  @Roles(Role.Admin, Role.User, Role.Staff)
+  @Roles(Role.Admin, Role.Customer, Role.Staff)
   @UseGuards(RoleGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customersService.findOneById(id);
   }
 
-  @Roles(Role.User)
+  @Roles(Role.Customer)
   @UseGuards(RoleGuard)
   @Patch(':id')
   update(
@@ -54,7 +54,7 @@ export class CustomersController {
     return this.customersService.update(id, updateCustomerDto);
   }
 
-  @Roles(Role.User, Role.Admin)
+  @Roles(Role.Customer, Role.Admin)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customersService.remove(id);
