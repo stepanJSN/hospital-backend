@@ -10,16 +10,32 @@ export class StaffService {
   async create(createStaffDto: CreateStaffDto) {
     const user = await this.prisma.staff.create({
       data: {
-        ...createStaffDto,
+        email: createStaffDto.email,
+        name: createStaffDto.name,
+        surname: createStaffDto.surname,
+        telephone: createStaffDto.telephone,
+        gender: createStaffDto.gender,
+        password: createStaffDto.password,
+        experience: createStaffDto.experience,
+        role: createStaffDto.role,
         birthday: new Date(createStaffDto.birthday),
       },
+    });
+    this.prisma.schedule.createMany({
+      data: createStaffDto.schedule.map((day) => ({
+        staffId: user.id,
+        dayOfWeek: day.dayOfWeek,
+        startTime: day.startTime,
+        endTime: day.endTime,
+      })),
     });
     return user;
   }
 
-  findAll() {
-    return this.prisma.staff.findMany();
-  }
+  // findAll(specialization: string, dateTime: string) {
+  //   return this.prisma.staff.findMany({
+  //   });
+  // }
 
   findOneById(id: string) {
     return this.prisma.staff.findUnique({
@@ -30,6 +46,7 @@ export class StaffService {
         password: false,
         role: false,
         birthday: false,
+        schedule: true,
       },
     });
   }

@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Param,
   ValidationPipe,
   UsePipes,
   Patch,
@@ -17,6 +16,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/auth/role.guard';
+import { CurrentUser } from 'src/auth/decorators/user.decorator';
 // import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
@@ -39,24 +39,25 @@ export class CustomersController {
 
   @Roles(Role.Admin, Role.Customer, Role.Staff)
   @UseGuards(RoleGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get('/current')
+  findOne(@CurrentUser('uid') id: string) {
+    // console.log(id);
     return this.customersService.findOneById(id);
   }
 
   @Roles(Role.Customer)
   @UseGuards(RoleGuard)
-  @Patch(':id')
+  @Patch('/current')
   update(
-    @Param('id') id: string,
+    @CurrentUser('uid') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
   ) {
     return this.customersService.update(id, updateCustomerDto);
   }
 
   @Roles(Role.Customer, Role.Admin)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete('/current')
+  remove(@CurrentUser('uid') id: string) {
     return this.customersService.remove(id);
   }
 }

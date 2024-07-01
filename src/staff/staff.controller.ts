@@ -14,6 +14,7 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+// import { CreateScheduleDto } from './dto/create-schedule.dto';
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
@@ -25,9 +26,16 @@ export class StaffController {
     return this.staffService.create(createStaffDto);
   }
 
+  // @Roles(Role.Admin)
+  // @UseGuards(RoleGuard)
+  // @Post('/schedule')
+  // createSchedule(@Body() createScheduleDto: CreateScheduleDto) {
+  //   return this.staffService.create(createScheduleDto);
+  // }
+
   @Get()
   findAll() {
-    return this.staffService.findAll();
+    // return this.staffService.findAll();
   }
 
   @Roles(Role.Admin)

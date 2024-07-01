@@ -26,6 +26,14 @@ export class CustomersService {
       where: {
         id,
       },
+      select: {
+        email: true,
+        name: true,
+        surname: true,
+        telephone: true,
+        birthday: true,
+        gender: true,
+      },
     });
   }
 

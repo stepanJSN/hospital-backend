@@ -1,11 +1,4 @@
-import {
-  IsEmail,
-  IsIn,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateStaffDto {
   @IsEmail()
@@ -17,8 +10,8 @@ export class CreateStaffDto {
   @IsString()
   surname: string;
 
-  @IsInt()
-  telephone: number;
+  @IsString()
+  telephone: string;
 
   @IsString()
   password: string;
@@ -29,10 +22,19 @@ export class CreateStaffDto {
   @IsIn(['male', 'female'])
   gender: 'male' | 'female';
 
+  @IsIn(['Admin', 'Staff'])
+  role: 'Admin' | 'Staff';
+
   @IsOptional()
   @IsString()
   specializationId?: string;
 
   @IsNumber()
   experience?: number;
+
+  schedule: Array<{
+    dayOfWeek: number;
+    startTime: number;
+    endTime: number;
+  }>;
 }

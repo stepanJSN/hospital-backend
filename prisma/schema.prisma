@@ -14,7 +14,7 @@ datasource db {
 }
 
 enum Role {
-  User
+  Customer
   Staff
   Admin
 }
@@ -29,7 +29,7 @@ model Customer {
   email String @unique
   name String
   surname String
-  telephone Int?
+  telephone String?
   birthday DateTime
   password String
   gender Gender @default(male)
@@ -40,17 +40,28 @@ model Staff {
   email String @unique
   name String
   surname String
-  telephone Int?
-  specialization Specialization? @relation(fields: [id], references: [id])
+  telephone String?
+  specializationId String?
+  specialization Specialization? @relation(fields: [specializationId], references: [id])
   birthday DateTime
   gender Gender
   password String
   experience Float?
   role Role @default(Staff)
+  schedule Schedule[]
 }
 
 model Specialization {
   id String @id @default(uuid())
   title String
   staff Staff[]
+}
+
+model Schedule {
+  id String @id @default(uuid())
+  staffId String
+  dayOfWeek Int
+  startTime Int @default(0)
+  endTime Int @default(0)
+  staff Staff @relation(fields: [staffId], references: [id])
 }
