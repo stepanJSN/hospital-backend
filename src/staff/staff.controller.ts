@@ -27,13 +27,6 @@ export class StaffController {
     return this.staffService.create(createStaffDto);
   }
 
-  // @Roles(Role.Admin)
-  // @UseGuards(RoleGuard)
-  // @Post('/schedule')
-  // createSchedule(@Body() createScheduleDto: CreateScheduleDto) {
-  //   return this.staffService.create(createScheduleDto);
-  // }
-
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Get(':id')

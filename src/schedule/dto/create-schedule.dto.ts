@@ -4,7 +4,7 @@ export class CreateScheduleDto {
   @IsString()
   staffId: string;
 
-  data: Array<{
+  schedule: Array<{
     dayOfWeek: number;
     startTime: number;
     endTime: number;

@@ -21,14 +21,6 @@ export class StaffService {
         birthday: new Date(createStaffDto.birthday),
       },
     });
-    this.prisma.schedule.createMany({
-      data: createStaffDto.schedule.map((day) => ({
-        staffId: user.id,
-        dayOfWeek: day.dayOfWeek,
-        startTime: day.startTime,
-        endTime: day.endTime,
-      })),
-    });
     return user;
   }
 
