@@ -32,10 +32,20 @@ export class StaffService {
     return user;
   }
 
-  // findAll(specialization: string, dateTime: string) {
-  //   return this.prisma.staff.findMany({
-  //   });
-  // }
+  findAll(specializationId?: string, date?: string) {
+    return this.prisma.staff.findMany({
+      where: {
+        AND: {
+          specializationId,
+          schedule: {
+            every: {
+              dayOfWeek: new Date(date).getDay(),
+            },
+          },
+        },
+      },
+    });
+  }
 
   findOneById(id: string) {
     return this.prisma.staff.findUnique({

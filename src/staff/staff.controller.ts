@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -33,16 +34,18 @@ export class StaffController {
   //   return this.staffService.create(createScheduleDto);
   // }
 
-  @Get()
-  findAll() {
-    // return this.staffService.findAll();
-  }
-
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.staffService.findOneById(id);
+  }
+
+  @Roles(Role.Admin, Role.Customer)
+  @UseGuards(RoleGuard)
+  @Get()
+  findAll(@Query() query: { specializationId: string; date?: string }) {
+    return this.staffService.findAll(query.specializationId, query.date);
   }
 
   @Roles(Role.Admin)
