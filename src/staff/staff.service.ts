@@ -25,17 +25,39 @@ export class StaffService {
   }
 
   findAll(specializationId?: string, date?: string) {
-    return this.prisma.staff.findMany({
-      where: {
-        AND: {
+    const select = {
+      id: true,
+      name: true,
+      surname: true,
+      experience: true,
+      gender: true,
+      specialization: {
+        select: {
+          title: true,
+        },
+      },
+    };
+
+    if (date) {
+      return this.prisma.staff.findMany({
+        where: {
           specializationId,
           schedule: {
-            every: {
-              dayOfWeek: new Date(date).getDay(),
+            some: {
+              dayOfWeek: {
+                equals: new Date(date).getDay(),
+              },
             },
           },
         },
+        select: select,
+      });
+    }
+    return this.prisma.staff.findMany({
+      where: {
+        specializationId,
       },
+      select: select,
     });
   }
 
