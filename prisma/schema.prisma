@@ -33,6 +33,7 @@ model Customer {
   birthday DateTime
   password String
   gender Gender @default(male)
+  appointments Appointments[]
 }
 
 model Staff {
@@ -47,8 +48,11 @@ model Staff {
   gender Gender
   password String
   experience Float?
+  description String?
+  room Int?
   role Role @default(Staff)
   schedule Schedule[]
+  appointments Appointments[]
 }
 
 model Specialization {
@@ -64,4 +68,13 @@ model Schedule {
   startTime Int @default(0)
   endTime Int @default(0)
   staff Staff @relation(fields: [staffId], references: [id])
+}
+
+model Appointments {
+  id String @id @default(uuid())
+  staffId String
+  customerId String
+  dateTime DateTime
+  staff Staff @relation(fields: [staffId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
 }

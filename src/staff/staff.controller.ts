@@ -27,7 +27,20 @@ export class StaffController {
     return this.staffService.create(createStaffDto);
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.Customer)
+  @UseGuards(RoleGuard)
+  @Get('/schedule')
+  getAvailableTime(
+    @Query() query: { staffId: string; startDate: string; endDate: string },
+  ) {
+    return this.staffService.getAvailableTime(
+      query.staffId,
+      query.startDate,
+      query.endDate,
+    );
+  }
+
+  @Roles(Role.Admin, Role.Customer)
   @UseGuards(RoleGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

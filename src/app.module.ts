@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { StaffModule } from './staff/staff.module';
 import { SpecializationModule } from './specialization/specialization.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
-  imports: [CustomersModule, PrismaModule, AuthModule, StaffModule, SpecializationModule, ScheduleModule],
+  imports: [CustomersModule, PrismaModule, AuthModule, StaffModule, SpecializationModule, ScheduleModule, AppointmentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

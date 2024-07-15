@@ -67,12 +67,79 @@ export class StaffService {
         id,
       },
       select: {
-        password: false,
-        role: false,
-        birthday: false,
-        schedule: true,
+        name: true,
+        surname: true,
+        email: true,
+        telephone: true,
+        specialization: {
+          select: {
+            title: true,
+          },
+        },
+        gender: true,
+        experience: true,
+        description: true,
       },
     });
+  }
+
+  async getAvailableTime(staffId: string, startDate: string, endDate: string) {
+    const startDateParsed = new Date(startDate);
+    const endDateParsed = new Date(endDate);
+    const dataDB = await this.prisma.staff.findUnique({
+      where: {
+        id: staffId,
+      },
+      select: {
+        schedule: true,
+        appointments: {
+          where: {
+            dateTime: {
+              gte: startDateParsed,
+              lte: endDateParsed,
+            },
+          },
+        },
+      },
+    });
+    const result = [];
+
+    for (
+      let index = new Date(startDateParsed);
+      index < endDateParsed;
+      index.setDate(index.getDate() + 1)
+    ) {
+      const day = dataDB.schedule.find(
+        (element) => element.dayOfWeek === index.getDay(),
+      );
+      if (day) {
+        const oneDay = {
+          dayOfWeek: new Date(index),
+          startTime: day.startTime,
+          endTime: day.endTime,
+          bookedTime: [],
+        };
+        for (let i = day.startTime; i < day.endTime; i++) {
+          if (
+            dataDB.appointments.find((element) => {
+              const appointmentDate = new Date(element.dateTime);
+              console.log(appointmentDate.getUTCHours);
+              return (
+                appointmentDate.getUTCHours() === i &&
+                appointmentDate.getDay() === index.getDay()
+              );
+            })
+          ) {
+            oneDay.bookedTime.push(i);
+          }
+        }
+        result.push(oneDay);
+      } else {
+        result.push({ dayOfWeek: new Date(index) });
+      }
+    }
+
+    return result;
   }
 
   findOneByEmail(email: string) {
