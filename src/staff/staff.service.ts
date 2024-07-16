@@ -123,7 +123,6 @@ export class StaffService {
           if (
             dataDB.appointments.find((element) => {
               const appointmentDate = new Date(element.dateTime);
-              console.log(appointmentDate.getUTCHours);
               return (
                 appointmentDate.getUTCHours() === i &&
                 appointmentDate.getDay() === index.getDay()
