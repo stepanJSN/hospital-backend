@@ -75,6 +75,7 @@ model Appointments {
   staffId String
   customerId String
   dateTime DateTime
+  isCompleted Boolean @default(false)
   staff Staff @relation(fields: [staffId], references: [id])
   customer Customer @relation(fields: [customerId], references: [id])
 }

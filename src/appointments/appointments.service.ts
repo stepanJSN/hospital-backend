@@ -51,6 +51,7 @@ export class AppointmentsService {
       select: {
         id: true,
         dateTime: true,
+        isCompleted: true,
         staff: {
           select: {
             name: true,
@@ -63,6 +64,7 @@ export class AppointmentsService {
           },
         },
       },
+      orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
     });
   }
 
