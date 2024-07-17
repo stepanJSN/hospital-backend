@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class StaffService {
@@ -122,10 +123,10 @@ export class StaffService {
         for (let i = day.startTime; i < day.endTime; i++) {
           if (
             dataDB.appointments.find((element) => {
-              const appointmentDate = new Date(element.dateTime);
+              const appointmentDate = dayjs(element.dateTime);
               return (
-                appointmentDate.getUTCHours() === i &&
-                appointmentDate.getDay() === index.getDay()
+                appointmentDate.get('hours') === i &&
+                appointmentDate.get('day') === index.getDay()
               );
             })
           ) {

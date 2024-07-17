@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+// import utc from 'dayjs/plugin/utc';
 // import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
-dayjs.extend(utc);
+// dayjs.extend(utc);
 
 type FindAllWhereType = {
   dateTime?: {
@@ -24,7 +24,7 @@ export class AppointmentsService {
       data: {
         staffId: createAppointmentDto.staffId,
         customerId: userId,
-        dateTime: dayjs.utc(createAppointmentDto.dateTime).local().toDate(),
+        dateTime: dayjs(createAppointmentDto.dateTime).toDate(),
       },
     });
   }
@@ -74,7 +74,11 @@ export class AppointmentsService {
   //   return `This action updates a #${id} appointment`;
   // }
 
-  remove(id: number) {
-    return `This action removes a #${id} appointment`;
+  async remove(id: string) {
+    await this.prisma.appointments.delete({
+      where: {
+        id,
+      },
+    });
   }
 }
