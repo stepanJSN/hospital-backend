@@ -19,8 +19,12 @@ export class ScheduleService {
     });
   }
 
-  findAll() {
-    return `This action returns all schedule`;
+  findAll(id: string) {
+    return this.prisma.schedule.findMany({
+      where: {
+        staffId: id,
+      },
+    });
   }
 
   findOne(id: number) {

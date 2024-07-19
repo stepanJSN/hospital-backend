@@ -65,8 +65,8 @@ model Schedule {
   id String @id @default(uuid())
   staffId String
   dayOfWeek Int
-  startTime Int @default(0)
-  endTime Int @default(0)
+  startTime Int?
+  endTime Int?
   staff Staff @relation(fields: [staffId], references: [id])
 }
 

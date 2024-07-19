@@ -14,6 +14,7 @@ type User = {
 type SignInResponse = {
   access_token: string;
   role: Role;
+  id: string;
 };
 
 @Injectable()
@@ -46,6 +47,7 @@ export class AuthService {
     return {
       access_token: access_token.access_token,
       role: Role.Customer,
+      id: user.id,
     };
   }
 
@@ -55,6 +57,7 @@ export class AuthService {
       access_token: (await this.verifyPasswordsAndGenerateToken(user, pass))
         .access_token,
       role: user.role,
+      id: user.id,
     };
   }
 }
