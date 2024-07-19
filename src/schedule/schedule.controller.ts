@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 // import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Controller('schedule')
@@ -22,13 +31,13 @@ export class ScheduleController {
     return this.scheduleService.findOne(+id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateScheduleDto: UpdateScheduleDto,
-  // ) {
-  //   return this.scheduleService.update(+id, updateScheduleDto);
-  // }
+  @Patch(':staffId')
+  update(
+    @Param('staffId') staffId: string,
+    @Body() updateScheduleDto: UpdateScheduleDto[],
+  ) {
+    updateScheduleDto.map((day) => this.scheduleService.update(staffId, day));
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -113,7 +113,8 @@ export class StaffService {
       index.setDate(index.getDate() + 1)
     ) {
       const day = dataDB.schedule.find(
-        (element) => element.dayOfWeek === index.getDay(),
+        (element) =>
+          element.dayOfWeek === index.getDay() && element.startTime !== null,
       );
       if (day) {
         const oneDay = {
