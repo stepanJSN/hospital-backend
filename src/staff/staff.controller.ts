@@ -15,6 +15,7 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { CurrentUser } from 'src/auth/decorators/user.decorator';
 // import { CreateScheduleDto } from './dto/create-schedule.dto';
 @Controller('staff')
 export class StaffController {
@@ -40,6 +41,13 @@ export class StaffController {
     );
   }
 
+  @Roles(Role.Admin, Role.Staff)
+  @UseGuards(RoleGuard)
+  @Get('/current')
+  findCurrent(@CurrentUser('uid') id: string) {
+    return this.staffService.findOneById(id);
+  }
+
   @Roles(Role.Admin, Role.Customer)
   @UseGuards(RoleGuard)
   @Get(':id')
@@ -54,10 +62,13 @@ export class StaffController {
     return this.staffService.findAll(query.specializationId, query.date);
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.Staff)
   @UseGuards(RoleGuard)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStaffDto: UpdateStaffDto) {
+  @Patch('/current')
+  update(
+    @CurrentUser('uid') id: string,
+    @Body() updateStaffDto: UpdateStaffDto,
+  ) {
     return this.staffService.update(id, updateStaffDto);
   }
 

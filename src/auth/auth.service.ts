@@ -11,6 +11,11 @@ type User = {
   role: Role;
 };
 
+type SignInResponse = {
+  access_token: string;
+  role: Role;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -32,19 +37,24 @@ export class AuthService {
     };
   }
 
-  async signInCustomer(
-    email: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
+  async signInCustomer(email: string, pass: string): Promise<SignInResponse> {
     const user = await this.customerService.findOneByEmail(email);
-    return this.verifyPasswordsAndGenerateToken(
+    const access_token = await this.verifyPasswordsAndGenerateToken(
       { ...user, role: Role.Customer },
       pass,
     );
+    return {
+      access_token: access_token.access_token,
+      role: Role.Customer,
+    };
   }
 
-  async signInStaff(email: string, pass: string): Promise<any> {
+  async signInStaff(email: string, pass: string): Promise<SignInResponse> {
     const user = await this.staffService.findOneByEmail(email);
-    return this.verifyPasswordsAndGenerateToken(user, pass);
+    return {
+      access_token: (await this.verifyPasswordsAndGenerateToken(user, pass))
+        .access_token,
+      role: user.role,
+    };
   }
 }

@@ -72,6 +72,7 @@ export class StaffService {
         surname: true,
         email: true,
         telephone: true,
+        birthday: true,
         specialization: {
           select: {
             title: true,
@@ -80,6 +81,7 @@ export class StaffService {
         gender: true,
         experience: true,
         description: true,
+        room: true,
       },
     });
   }
