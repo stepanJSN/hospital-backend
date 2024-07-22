@@ -23,8 +23,8 @@ function whereAll(id: string, idName: string, params: FindAllAppointmentsDto) {
   const whereRes: FindAllWhereType = {
     [idName]: id,
   };
-  if (params.isCompleted) {
-    whereRes.isCompleted = true;
+  if (params.isCompleted === 'false') {
+    whereRes.isCompleted = false;
   }
   if (params.startDate || params.endDate) {
     whereRes.dateTime = {};
