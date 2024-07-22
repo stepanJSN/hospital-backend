@@ -8,6 +8,9 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Param,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -17,7 +20,6 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/auth/role.guard';
 import { CurrentUser } from 'src/auth/decorators/user.decorator';
-// import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -39,10 +41,14 @@ export class CustomersController {
 
   @Roles(Role.Admin, Role.Customer, Role.Staff)
   @UseGuards(RoleGuard)
-  @Get('/current')
-  findOne(@CurrentUser('uid') id: string) {
-    // console.log(id);
-    return this.customersService.findOneById(id);
+  @Get('/:id')
+  async findOne(@Param('id') id: string) {
+    const customer = await this.customersService.findOneById(id);
+    console.log(customer);
+    if (!customer) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+    return customer;
   }
 
   @Roles(Role.Customer)
