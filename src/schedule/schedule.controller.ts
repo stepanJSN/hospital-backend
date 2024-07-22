@@ -9,8 +9,6 @@ import {
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-import { UpdateScheduleDto } from './dto/update-schedule.dto';
-// import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -26,21 +24,14 @@ export class ScheduleController {
     return this.scheduleService.findAll(staffId);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.scheduleService.findOne(+id);
-  // }
-
-  @Patch(':staffId')
-  update(
-    @Param('staffId') staffId: string,
-    @Body() updateScheduleDto: UpdateScheduleDto[],
-  ) {
-    updateScheduleDto.map((day) => this.scheduleService.update(staffId, day));
+  @Patch()
+  async update(@Body() updateScheduleDto: CreateScheduleDto) {
+    await this.scheduleService.remove(updateScheduleDto.staffId);
+    return this.scheduleService.create(updateScheduleDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.scheduleService.remove(+id);
+  @Delete(':staffId')
+  remove(@Param('staffId') id: string) {
+    return this.scheduleService.remove(id);
   }
 }

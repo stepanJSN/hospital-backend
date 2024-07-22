@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-// import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -31,20 +29,11 @@ export class ScheduleService {
     return `This action returns a #${id} schedule`;
   }
 
-  async update(id: string, updateScheduleDto: UpdateScheduleDto) {
-    return await this.prisma.schedule.updateMany({
+  remove(staffId: string) {
+    return this.prisma.schedule.deleteMany({
       where: {
-        staffId: id,
-        dayOfWeek: updateScheduleDto.dayOfWeek,
-      },
-      data: {
-        startTime: updateScheduleDto.startTime,
-        endTime: updateScheduleDto.endTime,
+        staffId,
       },
     });
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} schedule`;
   }
 }

@@ -6,7 +6,7 @@ export class CreateScheduleDto {
 
   schedule: Array<{
     dayOfWeek: number;
-    startTime: number | null;
-    endTime: number | null;
+    startTime: number;
+    endTime: number;
   }>;
 }
