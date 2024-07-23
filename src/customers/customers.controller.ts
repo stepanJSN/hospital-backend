@@ -44,7 +44,7 @@ export class CustomersController {
   @Get('/:id')
   async findOne(@Param('id') id: string) {
     const customer = await this.customersService.findOneById(id);
-    console.log(customer);
+
     if (!customer) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
