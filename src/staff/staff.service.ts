@@ -3,6 +3,30 @@ import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
+import { Role } from '@prisma/client';
+
+type FindAllWhere = {
+  role?: {
+    not: Role;
+  };
+  name?: {
+    startsWith: string;
+  };
+  surname?: {
+    startsWith: string;
+  };
+  specializationId?: string;
+  specialization?: {
+    isNot: null;
+  };
+  schedule?: {
+    some: {
+      dayOfWeek: {
+        equals: number;
+      };
+    };
+  };
+};
 
 @Injectable()
 export class StaffService {
@@ -25,7 +49,48 @@ export class StaffService {
     return user;
   }
 
-  findAll(specializationId?: string, date?: string) {
+  findAll(
+    role: Role,
+    specializationId?: string,
+    date?: string,
+    surname?: string,
+    name?: string,
+  ) {
+    const where = () => {
+      const whereRes: FindAllWhere = {};
+      if (role !== Role.Admin) {
+        whereRes.role = {
+          not: Role.Admin,
+        };
+        whereRes.specialization = {
+          isNot: null,
+        };
+      }
+      if (specializationId) {
+        whereRes.specializationId = specializationId;
+      }
+      if (date) {
+        whereRes.schedule = {
+          some: {
+            dayOfWeek: {
+              equals: new Date(date).getDay(),
+            },
+          },
+        };
+      }
+      if (surname) {
+        whereRes.surname = {
+          startsWith: surname,
+        };
+      }
+      if (name) {
+        whereRes.name = {
+          startsWith: name,
+        };
+      }
+      return whereRes;
+    };
+
     const select = {
       id: true,
       name: true,
@@ -39,25 +104,8 @@ export class StaffService {
       },
     };
 
-    if (date) {
-      return this.prisma.staff.findMany({
-        where: {
-          specializationId,
-          schedule: {
-            some: {
-              dayOfWeek: {
-                equals: new Date(date).getDay(),
-              },
-            },
-          },
-        },
-        select: select,
-      });
-    }
     return this.prisma.staff.findMany({
-      where: {
-        specializationId,
-      },
+      where: where(),
       select: select,
     });
   }

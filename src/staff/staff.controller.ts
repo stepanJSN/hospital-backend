@@ -15,6 +15,7 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { CurrentUser } from 'src/auth/decorators/user.decorator';
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
@@ -49,8 +50,26 @@ export class StaffController {
   @Roles(Role.Admin, Role.Customer)
   @UseGuards(RoleGuard)
   @Get()
-  findAll(@Query() query: { specializationId: string; date?: string }) {
-    return this.staffService.findAll(query.specializationId, query.date);
+  findAll(
+    @CurrentUser('role') role: Role,
+    @Query()
+    query: {
+      specializationId?: string;
+      date?: string;
+      fullName?: string;
+    },
+  ) {
+    if (query.fullName) {
+      const [name, surname] = query.fullName.split(' ');
+      return this.staffService.findAll(
+        role,
+        query.specializationId,
+        query.date,
+        surname,
+        name,
+      );
+    }
+    return this.staffService.findAll(role, query.specializationId, query.date);
   }
 
   @Roles(Role.Admin, Role.Staff)
