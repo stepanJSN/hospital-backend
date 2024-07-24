@@ -43,7 +43,7 @@ model Staff {
   surname String
   telephone String?
   specializationId String?
-  specialization Specialization? @relation(fields: [specializationId], references: [id])
+  specialization Specialization? @relation(fields: [specializationId], references: [id], onDelete: SetNull)
   birthday DateTime
   gender Gender
   password String
@@ -67,7 +67,7 @@ model Schedule {
   dayOfWeek Int
   startTime Int?
   endTime Int?
-  staff Staff @relation(fields: [staffId], references: [id])
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
 model Appointments {
@@ -76,6 +76,6 @@ model Appointments {
   customerId String
   dateTime DateTime
   isCompleted Boolean @default(false)
-  staff Staff @relation(fields: [staffId], references: [id])
-  customer Customer @relation(fields: [customerId], references: [id])
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }

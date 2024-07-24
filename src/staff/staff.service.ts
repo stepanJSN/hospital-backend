@@ -82,6 +82,7 @@ export class StaffService {
         experience: true,
         description: true,
         room: true,
+        role: true,
       },
     });
   }
