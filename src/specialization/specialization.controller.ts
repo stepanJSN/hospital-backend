@@ -32,11 +32,6 @@ export class SpecializationController {
     return this.specializationService.findAllByTitle(query.title);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.specializationService.findOne(+id);
-  // }
-
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Patch(':id')
