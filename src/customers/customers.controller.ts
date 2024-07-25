@@ -11,6 +11,7 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -35,8 +36,8 @@ export class CustomersController {
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Get()
-  findAll() {
-    return this.customersService.findAll();
+  findAll(@Query() query: { firstName: string; lastName: string }) {
+    return this.customersService.findAll(query.firstName, query.lastName);
   }
 
   @Roles(Role.Admin, Role.Customer, Role.Staff)
@@ -62,8 +63,8 @@ export class CustomersController {
   }
 
   @Roles(Role.Customer, Role.Admin)
-  @Delete('/current')
-  remove(@CurrentUser('uid') id: string) {
+  @Delete('/:id')
+  remove(@Param('id') id: string) {
     return this.customersService.remove(id);
   }
 }

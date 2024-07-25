@@ -17,8 +17,20 @@ export class CustomersService {
     return id;
   }
 
-  findAll() {
-    return this.prisma.customer.findMany();
+  findAll(name?: string, surname?: string) {
+    return this.prisma.customer.findMany({
+      where: {
+        name: {
+          startsWith: name,
+        },
+        surname: {
+          startsWith: surname,
+        },
+      },
+      omit: {
+        password: true,
+      },
+    });
   }
 
   findOneById(id: string) {
