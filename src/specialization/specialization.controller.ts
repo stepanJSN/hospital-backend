@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { SpecializationService } from './specialization.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
@@ -22,18 +24,20 @@ export class SpecializationController {
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
+  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createSpecializationDto: CreateSpecializationDto) {
     return this.specializationService.create(createSpecializationDto);
   }
 
   @Get()
-  findAll(@Query() query: { title: string }) {
+  findAll(@Query() query: CreateSpecializationDto) {
     return this.specializationService.findAllByTitle(query.title);
   }
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
+  @UsePipes(new ValidationPipe())
   @Patch(':id')
   update(
     @Param('id') id: string,
