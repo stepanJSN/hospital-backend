@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { hash } from 'argon2';
 
 @Injectable()
 export class CustomersService {
@@ -11,6 +12,7 @@ export class CustomersService {
     const { id } = await this.prisma.customer.create({
       data: {
         ...createCustomerDto,
+        password: await hash(createCustomerDto.password),
         birthday: new Date(createCustomerDto.birthday),
       },
     });

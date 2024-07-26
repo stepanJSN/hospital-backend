@@ -15,7 +15,7 @@ import { StaffModule } from 'src/staff/staff.module';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '2h' },
+      signOptions: { expiresIn: '30m' },
     }),
   ],
   controllers: [AuthController],

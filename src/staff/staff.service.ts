@@ -4,6 +4,7 @@ import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
 import { Role } from '@prisma/client';
+import { hash } from 'argon2';
 
 type FindAllWhere = {
   role?: {
@@ -40,7 +41,7 @@ export class StaffService {
         surname: createStaffDto.surname,
         telephone: createStaffDto.telephone,
         gender: createStaffDto.gender,
-        password: createStaffDto.password,
+        password: await hash(createStaffDto.password),
         experience: createStaffDto.experience,
         role: createStaffDto.role,
         birthday: new Date(createStaffDto.birthday),
