@@ -4,10 +4,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
 import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
-// import utc from 'dayjs/plugin/utc';
-// import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-
-// dayjs.extend(utc);
 
 type FindAllWhereType = {
   dateTime?: {
@@ -92,10 +88,6 @@ export class AppointmentsService {
       },
       orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
     });
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} appointment`;
   }
 
   changeStatus(id: string, changeStatusDto: ChangeStatusDto) {
