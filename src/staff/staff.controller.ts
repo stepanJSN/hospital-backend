@@ -8,6 +8,10 @@ import {
   Delete,
   UseGuards,
   Query,
+  NotFoundException,
+  ForbiddenException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -16,19 +20,19 @@ import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser } from 'src/auth/decorators/user.decorator';
+import { JWTPayload } from 'src/auth/types/auth.type';
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
+  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createStaffDto: CreateStaffDto) {
     return this.staffService.create(createStaffDto);
   }
 
-  @Roles(Role.Admin, Role.Customer)
-  @UseGuards(RoleGuard)
   @Get('/schedule')
   getAvailableTime(
     @Query() query: { staffId: string; startDate: string; endDate: string },
@@ -40,15 +44,15 @@ export class StaffController {
     );
   }
 
-  @Roles(Role.Admin, Role.Customer)
-  @UseGuards(RoleGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.staffService.findOneById(id);
+  async findOne(@Param('id') id: string) {
+    const staffMember = await this.staffService.findOneById(id);
+    if (!staffMember) {
+      throw new NotFoundException('Employee not found');
+    }
+    return staffMember;
   }
 
-  @Roles(Role.Admin, Role.Customer)
-  @UseGuards(RoleGuard)
   @Get()
   findAll(
     @CurrentUser('role') role: Role,
@@ -74,8 +78,16 @@ export class StaffController {
 
   @Roles(Role.Admin, Role.Staff)
   @UseGuards(RoleGuard)
+  @UsePipes(new ValidationPipe())
   @Patch('/:id')
-  update(@Param('id') id: string, @Body() updateStaffDto: UpdateStaffDto) {
+  update(
+    @CurrentUser() user: JWTPayload,
+    @Param('id') id: string,
+    @Body() updateStaffDto: UpdateStaffDto,
+  ) {
+    if (user.role === Role.Staff && id !== user.id) {
+      throw new ForbiddenException();
+    }
     return this.staffService.update(id, updateStaffDto);
   }
 

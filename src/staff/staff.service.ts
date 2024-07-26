@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -34,16 +34,16 @@ export class StaffService {
   constructor(private prisma: PrismaService) {}
 
   async create(createStaffDto: CreateStaffDto) {
+    const oldUser = await this.findOneByEmail(createStaffDto.email);
+
+    if (oldUser) {
+      throw new BadRequestException('Staff member already exists');
+    }
+
     const user = await this.prisma.staff.create({
       data: {
-        email: createStaffDto.email,
-        name: createStaffDto.name,
-        surname: createStaffDto.surname,
-        telephone: createStaffDto.telephone,
-        gender: createStaffDto.gender,
+        ...createStaffDto,
         password: await hash(createStaffDto.password),
-        experience: createStaffDto.experience,
-        role: createStaffDto.role,
         birthday: new Date(createStaffDto.birthday),
       },
     });

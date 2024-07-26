@@ -12,9 +12,11 @@ export class CreateCustomerDto {
   email: string;
 
   @IsString()
+  @MinLength(2)
   name: string;
 
   @IsString()
+  @MinLength(2)
   surname: string;
 
   @IsOptional()

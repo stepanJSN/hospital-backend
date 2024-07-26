@@ -1,22 +1,36 @@
-import { IsEmail, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsEmail,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  MinLength,
+} from 'class-validator';
 
 export class CreateStaffDto {
   @IsEmail()
   email: string;
 
   @IsString()
+  @MinLength(2)
   name: string;
 
   @IsString()
+  @MinLength(2)
   surname: string;
 
+  @IsOptional()
   @IsString()
+  @Length(12)
   telephone: string;
 
   @IsString()
+  @MinLength(8)
   password: string;
 
-  @IsString()
+  @IsDateString()
   birthday: Date;
 
   @IsIn(['male', 'female'])
@@ -29,12 +43,7 @@ export class CreateStaffDto {
   @IsString()
   specializationId?: string;
 
+  @IsOptional()
   @IsNumber()
   experience?: number;
-
-  schedule: Array<{
-    dayOfWeek: number;
-    startTime: number;
-    endTime: number;
-  }>;
 }
