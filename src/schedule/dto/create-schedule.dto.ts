@@ -1,9 +1,10 @@
-import { IsString } from 'class-validator';
+import { IsArray, IsUUID } from 'class-validator';
 
 export class CreateScheduleDto {
-  @IsString()
+  @IsUUID()
   staffId: string;
 
+  @IsArray()
   schedule: Array<{
     dayOfWeek: number;
     startTime: number;
