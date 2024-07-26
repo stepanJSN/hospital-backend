@@ -6,6 +6,8 @@ export type User = {
   password: string;
 };
 
-export type JWTPayload = User & {
+export type JWTPayload = {
+  id: string;
+  email: string;
   role: Role;
 };

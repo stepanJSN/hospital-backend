@@ -1,5 +1,5 @@
 import { Role } from '@prisma/client';
-import { IsEmail, IsIn, IsString } from 'class-validator';
+import { IsEmail, IsIn, IsString, MinLength } from 'class-validator';
 
 export class SignInRequestDto {
   @IsEmail()
@@ -7,6 +7,7 @@ export class SignInRequestDto {
   @IsIn(['Staff', 'Customer'])
   role: 'Staff' | 'Customer';
   @IsString()
+  @MinLength(8)
   password: string;
 }
 
