@@ -50,7 +50,7 @@ model Staff {
   gender Gender
   password String
   experience Float?
-  description String?
+  description String? @db.VarChar(1000)
   room Int?
   role Role @default(Staff)
   schedule Schedule[]

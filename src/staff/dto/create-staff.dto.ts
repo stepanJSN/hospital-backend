@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
@@ -28,6 +29,7 @@ export class CreateStaffDto {
 
   @IsString()
   @MinLength(8)
+  @MaxLength(25)
   password: string;
 
   @IsDateString()
@@ -46,4 +48,13 @@ export class CreateStaffDto {
   @IsOptional()
   @IsNumber()
   experience?: number;
+
+  @IsOptional()
+  @IsNumber()
+  room?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string;
 }
