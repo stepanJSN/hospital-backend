@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
@@ -38,7 +38,34 @@ function whereAll(id: string, idName: string, params: FindAllAppointmentsDto) {
 export class AppointmentsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createAppointmentDto: CreateAppointmentDto, userId: string) {
+  async create(createAppointmentDto: CreateAppointmentDto, userId: string) {
+    const oldAppointments = await this.prisma.appointments.findMany({
+      where: {
+        staffId: createAppointmentDto.staffId,
+        customerId: userId,
+        dateTime: {
+          gt: dayjs().toDate(),
+        },
+      },
+    });
+    if (oldAppointments.length > 0) {
+      throw new BadRequestException(
+        'You have another appointment with this doctor',
+      );
+    }
+
+    const customerAppointments = await this.prisma.appointments.findMany({
+      where: {
+        customerId: userId,
+        dateTime: dayjs(createAppointmentDto.dateTime).toDate(),
+      },
+    });
+    if (customerAppointments.length > 0) {
+      throw new BadRequestException(
+        'You have an appointment with another doctor at this time. Check your appointments and try again.',
+      );
+    }
+
     return this.prisma.appointments.create({
       data: {
         staffId: createAppointmentDto.staffId,
