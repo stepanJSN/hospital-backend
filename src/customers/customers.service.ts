@@ -48,7 +48,6 @@ export class CustomersService {
       },
       omit: {
         password: true,
-        id: true,
       },
     });
   }
@@ -62,6 +61,17 @@ export class CustomersService {
         id: true,
         email: true,
         password: true,
+      },
+    });
+  }
+
+  findAvatarById(id: string) {
+    return this.prisma.customer.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        avatarUrl: true,
       },
     });
   }
@@ -81,6 +91,21 @@ export class CustomersService {
       data,
     });
     return updateUser;
+  }
+
+  async updateAvatar(id: string, avatarUrl) {
+    const newUrl = await this.prisma.customer.update({
+      where: {
+        id,
+      },
+      data: {
+        avatarUrl: process.env.CUSTOMER_AVATAR_BUCKET_NAME + avatarUrl,
+      },
+      select: {
+        avatarUrl: true,
+      },
+    });
+    return newUrl;
   }
 
   async remove(id: string) {

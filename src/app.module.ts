@@ -8,9 +8,19 @@ import { StaffModule } from './staff/staff.module';
 import { SpecializationModule } from './specialization/specialization.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { GoogleStorageModule } from './google-storage/google-storage.module';
 
 @Module({
-  imports: [CustomersModule, PrismaModule, AuthModule, StaffModule, SpecializationModule, ScheduleModule, AppointmentsModule],
+  imports: [
+    CustomersModule,
+    PrismaModule,
+    AuthModule,
+    StaffModule,
+    SpecializationModule,
+    ScheduleModule,
+    AppointmentsModule,
+    GoogleStorageModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

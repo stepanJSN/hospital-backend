@@ -32,6 +32,7 @@ model Customer {
   name String
   surname String
   telephone String?
+  avatarUrl String?
   birthday DateTime
   password String
   gender Gender @default(male)
