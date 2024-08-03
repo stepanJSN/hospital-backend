@@ -12,6 +12,9 @@ import {
   ForbiddenException,
   UsePipes,
   ValidationPipe,
+  Put,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -21,9 +24,14 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser } from 'src/auth/decorators/user.decorator';
 import { JWTPayload } from 'src/auth/types/auth.type';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { GoogleStorageService } from 'src/google-storage/google-storage.service';
 @Controller('staff')
 export class StaffController {
-  constructor(private readonly staffService: StaffService) {}
+  constructor(
+    private readonly staffService: StaffService,
+    private readonly googleStorage: GoogleStorageService,
+  ) {}
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
@@ -91,10 +99,31 @@ export class StaffController {
     return this.staffService.update(id, updateStaffDto);
   }
 
+  @Put('/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProfilePicture(
+    @CurrentUser('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const filename = id + new Date().getTime();
+    try {
+      const { avatarUrl } = await this.staffService.findAvatarById(id);
+      if (avatarUrl) {
+        await this.googleStorage.deleteAvatar(avatarUrl);
+      }
+      await this.googleStorage.uploadFromMemory(filename, file);
+      await this.staffService.updateAvatar(id, filename);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
+    const { avatarUrl } = await this.staffService.findAvatarById(id);
+    this.googleStorage.deleteAvatar(avatarUrl);
     return this.staffService.remove(id);
   }
 }

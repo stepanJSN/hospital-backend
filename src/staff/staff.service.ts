@@ -116,22 +116,11 @@ export class StaffService {
       where: {
         id,
       },
-      select: {
-        name: true,
-        surname: true,
-        email: true,
-        telephone: true,
-        birthday: true,
-        specialization: {
-          select: {
-            title: true,
-          },
-        },
-        gender: true,
-        experience: true,
-        description: true,
-        room: true,
-        role: true,
+      omit: {
+        password: true,
+      },
+      include: {
+        specialization: true,
       },
     });
   }
@@ -209,6 +198,17 @@ export class StaffService {
     });
   }
 
+  findAvatarById(id: string) {
+    return this.prisma.staff.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        avatarUrl: true,
+      },
+    });
+  }
+
   async update(id: string, updateStaffDto: UpdateStaffDto) {
     const data = { ...updateStaffDto };
     if (updateStaffDto.birthday) {
@@ -224,6 +224,24 @@ export class StaffService {
       data,
     });
     return updateUser;
+  }
+
+  async updateAvatar(id: string, avatarUrl: string) {
+    const newUrl = await this.prisma.staff.update({
+      where: {
+        id,
+      },
+      data: {
+        avatarUrl:
+          process.env.AVATAR_STORAGE_PROVIDER +
+          process.env.STAFF_AVATAR_BUCKET_NAME +
+          avatarUrl,
+      },
+      select: {
+        avatarUrl: true,
+      },
+    });
+    return newUrl;
   }
 
   async remove(id: string) {

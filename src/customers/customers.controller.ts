@@ -32,7 +32,7 @@ import { GoogleStorageService } from 'src/google-storage/google-storage.service'
 export class CustomersController {
   constructor(
     private readonly customersService: CustomersService,
-    private googleStorage: GoogleStorageService,
+    private readonly googleStorage: GoogleStorageService,
   ) {}
 
   @Public()
@@ -94,11 +94,13 @@ export class CustomersController {
 
   @Roles(Role.Customer, Role.Admin)
   @Delete('/:id')
-  remove(@CurrentUser() user: JWTPayload, @Param('id') id: string) {
+  async remove(@CurrentUser() user: JWTPayload, @Param('id') id: string) {
     if (user.role === Role.Customer && id !== user.id) {
       throw new ForbiddenException();
     }
 
+    const { avatarUrl } = await this.customersService.findAvatarById(id);
+    this.googleStorage.deleteAvatar(avatarUrl);
     return this.customersService.remove(id);
   }
 }

@@ -93,13 +93,16 @@ export class CustomersService {
     return updateUser;
   }
 
-  async updateAvatar(id: string, avatarUrl) {
+  async updateAvatar(id: string, avatarUrl: string) {
     const newUrl = await this.prisma.customer.update({
       where: {
         id,
       },
       data: {
-        avatarUrl: process.env.CUSTOMER_AVATAR_BUCKET_NAME + avatarUrl,
+        avatarUrl:
+          process.env.AVATAR_STORAGE_PROVIDER +
+          process.env.CUSTOMER_AVATAR_BUCKET_NAME +
+          avatarUrl,
       },
       select: {
         avatarUrl: true,

@@ -45,6 +45,7 @@ model Staff {
   name String
   surname String
   telephone String?
+  avatarUrl String?
   specializationId String?
   specialization Specialization? @relation(fields: [specializationId], references: [id], onDelete: SetNull)
   birthday DateTime
