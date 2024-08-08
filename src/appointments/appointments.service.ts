@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
 import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 type FindAllWhereType = {
   dateTime?: {
@@ -36,7 +37,10 @@ function whereAll(id: string, idName: string, params: FindAllAppointmentsDto) {
 
 @Injectable()
 export class AppointmentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto, userId: string) {
     const oldAppointments = await this.prisma.appointments.findMany({
@@ -60,19 +64,41 @@ export class AppointmentsService {
         dateTime: dayjs(createAppointmentDto.dateTime).toDate(),
       },
     });
+
     if (customerAppointments.length > 0) {
       throw new BadRequestException(
         'You have an appointment with another doctor at this time. Check your appointments and try again.',
       );
     }
 
-    return this.prisma.appointments.create({
+    const newAppointment = this.prisma.appointments.create({
       data: {
         staffId: createAppointmentDto.staffId,
         customerId: userId,
         dateTime: dayjs(createAppointmentDto.dateTime).toDate(),
       },
     });
+
+    const username = await this.prisma.customer.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        name: true,
+        surname: true,
+      },
+    });
+
+    this.notificationsService.create({
+      sender: userId,
+      receiversId: [createAppointmentDto.staffId],
+      message: `${username.name} ${username.surname} make an appointment with you on ${createAppointmentDto.dateTime}`,
+      type: 'Info',
+      isRead: false,
+      date: new Date(),
+    });
+
+    return newAppointment;
   }
 
   findAllByCustomer(id: string, params: FindAllAppointmentsDto) {

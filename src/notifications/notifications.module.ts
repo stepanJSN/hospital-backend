@@ -8,5 +8,6 @@ import { PubSubModule } from 'src/pub-sub/pub-sub.module';
   imports: [PubSubModule, HttpModule],
   controllers: [NotificationsController],
   providers: [NotificationsService],
+  exports: [NotificationsService],
 })
 export class NotificationsModule {}
