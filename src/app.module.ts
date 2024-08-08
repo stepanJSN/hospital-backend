@@ -9,6 +9,8 @@ import { SpecializationModule } from './specialization/specialization.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { GoogleStorageModule } from './google-storage/google-storage.module';
+import { PubSubModule } from './pub-sub/pub-sub.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { GoogleStorageModule } from './google-storage/google-storage.module';
     ScheduleModule,
     AppointmentsModule,
     GoogleStorageModule,
+    PubSubModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
