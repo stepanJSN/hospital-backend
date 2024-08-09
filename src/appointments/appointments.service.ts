@@ -91,8 +91,9 @@ export class AppointmentsService {
 
     this.notificationsService.create({
       sender: userId,
+      senderName: `${username.name} ${username.surname}`,
       receiversId: [createAppointmentDto.staffId],
-      message: `${username.name} ${username.surname} make an appointment with you on ${createAppointmentDto.dateTime}`,
+      message: `${username.name} ${username.surname} make an appointment with you on ${dayjs(createAppointmentDto.dateTime).format('DD.MM.YYYY HH:mm')}`,
       type: 'Info',
       isRead: false,
       date: new Date(),

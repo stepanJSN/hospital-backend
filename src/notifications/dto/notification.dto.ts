@@ -1,5 +1,6 @@
 export class NotificationRequestDto {
   sender: string;
+  senderName: string;
   receiversId: string[];
   type: 'Info' | 'Warning' | 'Error';
   message: string;

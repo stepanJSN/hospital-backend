@@ -1,34 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Query, Patch } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+//import { CreateNotificationDto } from './dto/notification.dto';
+//import { UpdateNotificationDto } from './dto/update-notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
-  }
+  // @Post()
+  // create(@Body() createNotificationDto: CreateNotificationDto) {
+  //   return this.notificationsService.create(createNotificationDto);
+  // }
 
-  @Get()
-  findAll() {
-    return this.notificationsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.notificationsService.findAll();
+  // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationsService.findOne(+id);
+  findAllMessagesByUserId(
+    @Param('id') id: string,
+    @Query() params: { onlyUnread?: string },
+  ) {
+    const parsedParams = params.onlyUnread
+      ? JSON.parse(params.onlyUnread)
+      : true;
+    return this.notificationsService.findAll(id, parsedParams);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationsService.update(+id, updateNotificationDto);
+  markAsRead(@Param('id') messageId: string) {
+    return this.notificationsService.markAsRead(messageId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.notificationsService.remove(+id);
+  // }
 }

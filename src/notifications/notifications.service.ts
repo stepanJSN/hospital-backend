@@ -16,13 +16,23 @@ export class NotificationsService {
   ) {}
 
   create(NotificationDto: NotificationRequestDto) {
-    this.pubSubService.writeMessages(NotificationDto);
+    this.pubSubService.writeMessages(JSON.stringify(NotificationDto));
   }
 
-  async findAll(receiverId: string): Promise<NotificationResponseDto[]> {
+  async findAll(
+    receiverId: string,
+    onlyUnread: boolean,
+  ): Promise<NotificationResponseDto[]> {
     const { data } = await firstValueFrom(
       this.httpService
-        .get(`${process.env.NOTIFICATION_SERVICE}/${receiverId}`)
+        .get<NotificationResponseDto[]>(
+          `${process.env.NOTIFICATION_SERVICE}/${receiverId}`,
+          {
+            params: {
+              onlyUnread,
+            },
+          },
+        )
         .pipe(
           catchError((error: AxiosError) => {
             console.log(error);
