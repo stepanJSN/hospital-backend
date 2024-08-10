@@ -43,15 +43,18 @@ export class NotificationsService {
     return data;
   }
 
-  markAsRead(messageId: string) {
-    return this.httpService
-      .patch(`${process.env.NOTIFICATION_SERVICE}/${messageId}`)
-      .pipe(
-        catchError((error: AxiosError) => {
-          console.log(error);
-          throw error;
-        }),
-      );
+  async markAsRead(messageId: string) {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .patch(`${process.env.NOTIFICATION_SERVICE}/${messageId}`)
+        .pipe(
+          catchError((error: AxiosError) => {
+            console.log(error);
+            throw error;
+          }),
+        ),
+    );
+    return data;
   }
 
   // remove(id: number) {
