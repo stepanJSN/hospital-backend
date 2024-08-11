@@ -183,8 +183,8 @@ export class AppointmentsService {
       senderName: `${userData.name} ${userData.surname}`,
       receiversId: [receiverId],
       message: replacePlaceholders(currentMessageTemplate, {
-        customerName: userData.name,
-        customerSurname: userData.surname,
+        name: userData.name,
+        surname: userData.surname,
         date: dayjs(deletedAppointment.dateTime).format('DD.MM.YYYY HH:mm'),
       }),
       type: 'Warning',

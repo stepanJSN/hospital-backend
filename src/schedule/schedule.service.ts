@@ -1,13 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { StaffService } from 'src/staff/staff.service';
+import { replacePlaceholders } from 'src/utils/replacePlaceholders';
+import { messageTemplate } from 'src/notifications/notifications.config';
 
 @Injectable()
 export class ScheduleService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+    private staffService: StaffService,
+  ) {}
 
   async create(createScheduleDto: CreateScheduleDto) {
-    return await this.prisma.schedule.createMany({
+    const numberOfDays = await this.prisma.schedule.createMany({
       data: createScheduleDto.schedule.map((elem) => ({
         staffId: createScheduleDto.staffId,
         dayOfWeek: elem.dayOfWeek,
@@ -15,6 +23,25 @@ export class ScheduleService {
         endTime: elem.endTime,
       })),
     });
+
+    const admins = await this.staffService.findAllAdmins();
+    const currentStaffMember = await this.staffService.findOneById(
+      createScheduleDto.staffId,
+    );
+    this.notificationsService.create({
+      sender: createScheduleDto.staffId,
+      senderName: `${currentStaffMember.name} ${currentStaffMember.surname}`,
+      receiversId: admins.map((admin) => admin.id),
+      message: replacePlaceholders(messageTemplate.doctorChangeSchedule, {
+        name: currentStaffMember.name,
+        surname: currentStaffMember.surname,
+      }),
+      type: 'Warning',
+      isRead: false,
+      date: new Date(),
+    });
+
+    return numberOfDays;
   }
 
   findAll(id: string) {

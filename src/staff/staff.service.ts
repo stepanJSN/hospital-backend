@@ -111,6 +111,17 @@ export class StaffService {
     });
   }
 
+  findAllAdmins() {
+    return this.prisma.staff.findMany({
+      where: {
+        role: 'Admin',
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+
   findOneById(id: string) {
     return this.prisma.staff.findUnique({
       where: {
