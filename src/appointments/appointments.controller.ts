@@ -19,6 +19,7 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Role } from '@prisma/client';
+import { JWTPayload } from 'src/auth/types/auth.type';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -67,7 +68,7 @@ export class AppointmentsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.appointmentsService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: JWTPayload) {
+    return this.appointmentsService.remove(id, user);
   }
 }

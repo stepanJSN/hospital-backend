@@ -5,6 +5,12 @@ import dayjs from 'dayjs';
 import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { CustomersService } from 'src/customers/customers.service';
+import { StaffService } from 'src/staff/staff.service';
+import { JWTPayload } from 'src/auth/types/auth.type';
+import { Role } from '@prisma/client';
+import { replacePlaceholders } from 'src/utils/replacePlaceholders';
+import { messageTemplate } from 'src/notifications/notifications.config';
 
 type FindAllWhereType = {
   dateTime?: {
@@ -40,6 +46,8 @@ export class AppointmentsService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    private customersService: CustomersService,
+    private staffService: StaffService,
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto, userId: string) {
@@ -79,21 +87,17 @@ export class AppointmentsService {
       },
     });
 
-    const username = await this.prisma.customer.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        name: true,
-        surname: true,
-      },
-    });
+    const user = await this.customersService.findOneById(userId);
 
     this.notificationsService.create({
       sender: userId,
-      senderName: `${username.name} ${username.surname}`,
+      senderName: `${user.name} ${user.surname}`,
       receiversId: [createAppointmentDto.staffId],
-      message: `${username.name} ${username.surname} make an appointment with you on ${dayjs(createAppointmentDto.dateTime).format('DD.MM.YYYY HH:mm')}`,
+      message: replacePlaceholders(messageTemplate.customerCreateAppointment, {
+        customerName: user.name,
+        customerSurname: user.surname,
+        date: dayjs(createAppointmentDto.dateTime).format('DD.MM.YYYY HH:mm'),
+      }),
       type: 'Info',
       isRead: false,
       date: new Date(),
@@ -155,11 +159,37 @@ export class AppointmentsService {
     });
   }
 
-  async remove(id: string) {
-    await this.prisma.appointments.delete({
+  async remove(id: string, user: JWTPayload) {
+    const deletedAppointment = await this.prisma.appointments.delete({
       where: {
         id,
       },
+    });
+    const userData =
+      user.role === Role.Customer
+        ? await this.customersService.findOneById(user.id)
+        : await this.staffService.findOneById(user.id);
+    const receiverId =
+      user.role === Role.Customer
+        ? deletedAppointment.staffId
+        : deletedAppointment.customerId;
+    const currentMessageTemplate =
+      user.role === Role.Customer
+        ? messageTemplate.customerCancelAppointment
+        : messageTemplate.doctorCancelAppointment;
+
+    this.notificationsService.create({
+      sender: user.id,
+      senderName: `${userData.name} ${userData.surname}`,
+      receiversId: [receiverId],
+      message: replacePlaceholders(currentMessageTemplate, {
+        customerName: userData.name,
+        customerSurname: userData.surname,
+        date: dayjs(deletedAppointment.dateTime).format('DD.MM.YYYY HH:mm'),
+      }),
+      type: 'Warning',
+      isRead: false,
+      date: new Date(),
     });
   }
 }
