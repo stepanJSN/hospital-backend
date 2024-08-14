@@ -86,7 +86,7 @@ export class CustomersController {
         await this.googleStorage.deleteAvatar(avatarUrl);
       }
       await this.googleStorage.uploadFromMemory(filename, file);
-      await this.customersService.updateAvatar(id, filename);
+      return await this.customersService.updateAvatar(id, filename);
     } catch (error) {
       console.log(error);
     }
