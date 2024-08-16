@@ -36,24 +36,10 @@ export class AppointmentsController {
     return this.appointmentsService.create(createAppointmentDto, id);
   }
 
-  @Roles(Role.Admin, Role.Staff)
-  @UseGuards(RoleGuard)
-  @UsePipes(new ValidationPipe())
-  @Get('/staff/:id')
-  findAllByStaff(
-    @Param('id') id: string,
-    @Query() findAllAppointments: FindAllAppointmentsDto,
-  ) {
-    return this.appointmentsService.findAllByStaff(id, findAllAppointments);
-  }
-
   @UsePipes(new ValidationPipe())
   @Get()
-  findAllByCustomer(
-    @CurrentUser('id') id: string,
-    @Query() findAllAppointments: FindAllAppointmentsDto,
-  ) {
-    return this.appointmentsService.findAllByCustomer(id, findAllAppointments);
+  findAll(@Query() findAllAppointments: FindAllAppointmentsDto) {
+    return this.appointmentsService.findAll(findAllAppointments);
   }
 
   @Roles(Role.Admin, Role.Staff)

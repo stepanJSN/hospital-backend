@@ -12,35 +12,6 @@ import { Role } from '@prisma/client';
 import { replacePlaceholders } from 'src/utils/replacePlaceholders';
 import { messageTemplate } from 'src/notifications/notifications.config';
 
-type FindAllWhereType = {
-  dateTime?: {
-    gt?: Date;
-    lte?: Date;
-  };
-  isCompleted?: boolean;
-  customerId?: string;
-  staffId?: string;
-};
-
-function whereAll(id: string, idName: string, params: FindAllAppointmentsDto) {
-  const whereRes: FindAllWhereType = {
-    [idName]: id,
-  };
-  if (params.isCompleted === 'false') {
-    whereRes.isCompleted = false;
-  }
-  if (params.startDate || params.endDate) {
-    whereRes.dateTime = {};
-  }
-  if (params.startDate) {
-    whereRes.dateTime.gt = new Date(params.startDate);
-  }
-  if (params.endDate) {
-    whereRes.dateTime.lte = dayjs(params.endDate).add(1, 'day').toDate();
-  }
-  return whereRes;
-}
-
 @Injectable()
 export class AppointmentsService {
   constructor(
@@ -106,43 +77,63 @@ export class AppointmentsService {
     return newAppointment;
   }
 
-  findAllByCustomer(id: string, params: FindAllAppointmentsDto) {
+  findAll(data: FindAllAppointmentsDto) {
     return this.prisma.appointments.findMany({
-      where: whereAll(id, 'customerId', params),
-      select: {
-        id: true,
-        dateTime: true,
-        isCompleted: true,
-        staff: {
-          select: {
-            name: true,
-            surname: true,
-            specialization: {
-              select: {
-                title: true,
-              },
-            },
+      where: {
+        ...(data.fromDate && {
+          dateTime: {
+            gt: new Date(data.fromDate),
           },
-        },
+        }),
+        ...(data.toDate && {
+          dateTime: {
+            lte: dayjs(data.toDate).add(1, 'day').toDate(),
+          },
+        }),
+        ...(data.returnType === 'staff'
+          ? { customerId: data.userId }
+          : { staffId: data.userId }),
+        ...(data.isCompleted === 'false' ? { isCompleted: false } : {}),
+        ...(data.customerName && {
+          customer: {
+            name: data.customerName.split(' ')[0],
+            surname: data.customerName.split(' ')[1],
+          },
+        }),
+        ...(data.staffName && {
+          staff: {
+            name: data.staffName.split(' ')[0],
+            surname: data.staffName.split(' ')[1],
+          },
+        }),
       },
-      orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
-    });
-  }
-
-  findAllByStaff(id: string, params: FindAllAppointmentsDto) {
-    return this.prisma.appointments.findMany({
-      where: whereAll(id, 'staffId', params),
       select: {
         id: true,
         dateTime: true,
         isCompleted: true,
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            surname: true,
-          },
-        },
+        ...(data.returnType === 'staff'
+          ? {
+              staff: {
+                select: {
+                  name: true,
+                  surname: true,
+                  specialization: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
+            }
+          : {
+              customer: {
+                select: {
+                  id: true,
+                  name: true,
+                  surname: true,
+                },
+              },
+            }),
       },
       orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
     });
