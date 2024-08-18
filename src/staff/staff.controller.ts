@@ -99,10 +99,10 @@ export class StaffController {
     return this.staffService.update(id, updateStaffDto);
   }
 
-  @Put('/avatar')
+  @Put('/avatar/:id')
   @UseInterceptors(FileInterceptor('file'))
   async updateProfilePicture(
-    @CurrentUser('id') id: string,
+    @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const filename = id + new Date().getTime();
@@ -112,7 +112,7 @@ export class StaffController {
         await this.googleStorage.deleteAvatar(avatarUrl);
       }
       await this.googleStorage.uploadFromMemory(filename, file);
-      await this.staffService.updateAvatar(id, filename);
+      return await this.staffService.updateAvatar(id, filename);
     } catch (error) {
       console.log(error);
     }
