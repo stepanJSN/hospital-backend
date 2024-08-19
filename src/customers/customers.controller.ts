@@ -100,7 +100,9 @@ export class CustomersController {
     }
 
     const { avatarUrl } = await this.customersService.findAvatarById(id);
-    this.googleStorage.deleteAvatar(avatarUrl);
+    if (avatarUrl) {
+      this.googleStorage.deleteAvatar(avatarUrl);
+    }
     return this.customersService.remove(id);
   }
 }

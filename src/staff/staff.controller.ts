@@ -123,7 +123,9 @@ export class StaffController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const { avatarUrl } = await this.staffService.findAvatarById(id);
-    this.googleStorage.deleteAvatar(avatarUrl);
+    if (avatarUrl) {
+      this.googleStorage.deleteAvatar(avatarUrl);
+    }
     return this.staffService.remove(id);
   }
 }
