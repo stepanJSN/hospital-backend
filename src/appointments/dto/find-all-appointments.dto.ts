@@ -1,4 +1,4 @@
-import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
 export class FindAllAppointmentsDto {
   @IsString()
@@ -9,11 +9,9 @@ export class FindAllAppointmentsDto {
   returnType: 'staff' | 'customer';
 
   @IsOptional()
-  @IsDateString()
   fromDate?: string;
 
   @IsOptional()
-  @IsDateString()
   toDate?: string;
 
   @IsOptional()

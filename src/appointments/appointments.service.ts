@@ -80,20 +80,29 @@ export class AppointmentsService {
   findAll(data: FindAllAppointmentsDto) {
     return this.prisma.appointments.findMany({
       where: {
-        ...(data.fromDate && {
-          dateTime: {
-            gt: new Date(data.fromDate),
-          },
-        }),
+        ...(data.fromDate &&
+          data.toDate && {
+            dateTime: {
+              gt: new Date(data.fromDate),
+              lte: dayjs(data.toDate).add(1, 'day').toDate(),
+            },
+          }),
         ...(data.toDate && {
           dateTime: {
             lte: dayjs(data.toDate).add(1, 'day').toDate(),
           },
         }),
+        ...(data.fromDate && {
+          dateTime: {
+            gt: new Date(data.fromDate),
+          },
+        }),
         ...(data.returnType === 'staff'
           ? { customerId: data.userId }
           : { staffId: data.userId }),
-        ...(data.isCompleted === 'false' ? { isCompleted: false } : {}),
+        ...(!data.isCompleted || data.isCompleted === 'false'
+          ? { isCompleted: false }
+          : {}),
         ...(data.customerName && {
           customer: {
             name: data.customerName.split(' ')[0],
