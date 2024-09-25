@@ -2,6 +2,7 @@
 
 “Hospital” is an application to make doctor's appointments more comfortable. It offers a user-friendly interface for all users: administrators, patients and doctors. 
 This is the backend part. Frontend: https://github.com/Stepan22-prog/hospital-frontend
+The service responsible for saving notifications is located in a separate repository: https://github.com/Stepan22-prog/hospital-notification
 
 ## Functionality
 **Patients(customers)**
@@ -11,6 +12,7 @@ This is the backend part. Frontend: https://github.com/Stepan22-prog/hospital-fr
  - Make an appointment for a available time
  - View appointments
  - Edit adn delete personal profile
+ - Receiving notifications of cancellation of an appointment
 
 **Doctors(staff)**
 
@@ -19,6 +21,7 @@ This is the backend part. Frontend: https://github.com/Stepan22-prog/hospital-fr
  - Export recorded patients to Excel
  - Change work schedule
  - Edit and delete a profile
+ - Receiving notifications of appointments or cancellations
 
 **Admin**
 
@@ -28,6 +31,7 @@ This is the backend part. Frontend: https://github.com/Stepan22-prog/hospital-fr
  - Export of staff list to excel
  - View and delete patients
  - Management of specializations. Creating, modifying and deleting
+ - Receiving notifications about changes in doctors' work schedules
 
 ## TechStack
 
@@ -36,6 +40,8 @@ This is the backend part. Frontend: https://github.com/Stepan22-prog/hospital-fr
  - Nest
  - Prisma
  - Docker
+ - Cloud Storage
+ - Google Cloud Pub/Sub
 
 ## Run
 1.  Clone project's repo:  `git clone https://github.com/Stepan22-prog/hospital-backend.git`
