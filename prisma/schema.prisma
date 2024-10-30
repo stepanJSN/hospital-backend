@@ -16,8 +16,7 @@ datasource db {
 }
 
 enum Role {
-  Customer
-  Staff
+  Doctor
   Admin
 }
 
@@ -26,7 +25,13 @@ enum Gender {
   female
 }
 
-model Customer {
+enum MessageType {
+  Info
+  Warning
+  Error
+}
+
+model User {
   id String @id @default(uuid())
   email String @unique
   name String
@@ -34,35 +39,44 @@ model Customer {
   telephone String?
   avatarUrl String?
   birthday DateTime
+  gender Gender
   password String
-  gender Gender @default(male)
+  customer Customer[]
+  staff Staff[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointments Appointments[]
+  updatedAt DateTime @updatedAt
 }
 
 model Staff {
   id String @id @default(uuid())
-  email String @unique
-  name String
-  surname String
-  telephone String?
-  avatarUrl String?
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   specializationId String?
   specialization Specialization? @relation(fields: [specializationId], references: [id], onDelete: SetNull)
-  birthday DateTime
-  gender Gender
-  password String
   experience Float?
   description String? @db.VarChar(1000)
   room Int?
-  role Role @default(Staff)
+  role Role @default(Doctor)
   schedule Schedule[]
+  scheduleExeptions ScheduleException[]
   appointments Appointments[]
+  updatedAt DateTime @updatedAt
 }
 
 model Specialization {
   id String @id @default(uuid())
   title String
   staff Staff[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Schedule {
@@ -74,6 +88,16 @@ model Schedule {
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
+model ScheduleException {
+  id String  @id @default(uuid())
+  staffId String
+  date DateTime
+  isDayOff Boolean
+  startTime Int? 
+  endTime Int? 
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}
+
 model Appointments {
   id String @id @default(uuid())
   staffId String
@@ -82,4 +106,17 @@ model Appointments {
   isCompleted Boolean @default(false)
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notifications {
+  id String @id @default(uuid())
+  reciverId String
+  senderId String
+  message String
+  isRead Boolean
+  type MessageType @default(Info)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
