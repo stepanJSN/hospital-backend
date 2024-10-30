@@ -11,6 +11,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { GoogleStorageModule } from './google-storage/google-storage.module';
 import { PubSubModule } from './pub-sub/pub-sub.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -24,6 +25,9 @@ import { NotificationsModule } from './notifications/notifications.module';
     GoogleStorageModule,
     PubSubModule,
     NotificationsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
