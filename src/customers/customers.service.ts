@@ -9,9 +9,9 @@ export class CustomersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
-    const oldUser = await this.findOneByEmail(createCustomerDto.email);
+    const user = await this.findOneByEmail(createCustomerDto.email);
 
-    if (oldUser) {
+    if (user) {
       throw new BadRequestException('User already exists');
     }
 
@@ -37,6 +37,9 @@ export class CustomersService {
       },
       omit: {
         password: true,
+        createdAt: true,
+        updatedAt: true,
+        avatarUrl: true,
       },
     });
   }
@@ -59,19 +62,7 @@ export class CustomersService {
       },
       select: {
         id: true,
-        email: true,
         password: true,
-      },
-    });
-  }
-
-  findAvatarById(id: string) {
-    return this.prisma.customer.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        avatarUrl: true,
       },
     });
   }
@@ -80,8 +71,6 @@ export class CustomersService {
     const data = { ...updateCustomerDto };
     if (updateCustomerDto.birthday) {
       data.birthday = new Date(updateCustomerDto.birthday);
-    } else {
-      delete data.birthday;
     }
 
     const updateUser = await this.prisma.customer.update({
@@ -91,24 +80,6 @@ export class CustomersService {
       data,
     });
     return updateUser;
-  }
-
-  async updateAvatar(id: string, avatarUrl: string) {
-    const newUrl = await this.prisma.customer.update({
-      where: {
-        id,
-      },
-      data: {
-        avatarUrl:
-          process.env.AVATAR_STORAGE_PROVIDER +
-          process.env.CUSTOMER_AVATAR_BUCKET_NAME +
-          avatarUrl,
-      },
-      select: {
-        avatarUrl: true,
-      },
-    });
-    return newUrl;
   }
 
   async remove(id: string) {

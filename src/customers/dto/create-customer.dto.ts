@@ -1,6 +1,8 @@
+import { Gender } from '@prisma/client';
 import {
   IsDateString,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsString,
   Length,
@@ -30,4 +32,7 @@ export class CreateCustomerDto {
 
   @IsDateString()
   birthday: Date;
+
+  @IsEnum(Gender)
+  gender: Gender;
 }
