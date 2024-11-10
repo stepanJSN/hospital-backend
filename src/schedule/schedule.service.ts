@@ -24,32 +24,50 @@ export class ScheduleService {
       })),
     });
 
-    const admins = await this.staffService.findAllAdmins();
-    const currentStaffMember = await this.staffService.findOneById(
-      createScheduleDto.staffId,
-    );
-    this.notificationsService.create({
-      sender: createScheduleDto.staffId,
-      senderName: `${currentStaffMember.name} ${currentStaffMember.surname}`,
-      receiversId: admins.map((admin) => admin.id),
-      message: replacePlaceholders(messageTemplate.doctorChangeSchedule, {
-        name: currentStaffMember.name,
-        surname: currentStaffMember.surname,
-      }),
-      type: 'Warning',
-      isRead: false,
-      date: new Date(),
-    });
+    // const admins = await this.staffService.findAllAdmins();
+    // const currentStaffMember = await this.staffService.findOneById(
+    //   createScheduleDto.staffId,
+    // );
+    // this.notificationsService.create({
+    //   sender: createScheduleDto.staffId,
+    //   senderName: `${currentStaffMember.name} ${currentStaffMember.surname}`,
+    //   receiversId: admins.map((admin) => admin.id),
+    //   message: replacePlaceholders(messageTemplate.doctorChangeSchedule, {
+    //     name: currentStaffMember.name,
+    //     surname: currentStaffMember.surname,
+    //   }),
+    //   type: 'Warning',
+    //   isRead: false,
+    //   date: new Date(),
+    // });
 
     return numberOfDays;
   }
 
-  findAll(id: string) {
-    return this.prisma.schedule.findMany({
+  async findAll(id: string) {
+    const result = [];
+    const businessDays = await this.prisma.schedule.findMany({
       where: {
         staffId: id,
       },
+      omit: {
+        id: true,
+        staffId: true,
+      },
     });
+    for (let i = 0; i < 7; i++) {
+      const businessDay = businessDays.find((day) => day.dayOfWeek === i);
+      if (businessDay) {
+        result.push(businessDay);
+      } else {
+        result.push({
+          dayOfWeek: i,
+          startTime: null,
+          endTime: null,
+        });
+      }
+    }
+    return result;
   }
 
   findOne(id: number) {

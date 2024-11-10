@@ -11,6 +11,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { GoogleStorageModule } from './google-storage/google-storage.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ConfigModule } from '@nestjs/config';
+import { AvatarsModule } from './avatars/avatar.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigModule } from '@nestjs/config';
     AppointmentsModule,
     GoogleStorageModule,
     NotificationsModule,
+    AvatarsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -37,7 +37,6 @@ model User {
   name String
   surname String
   telephone String?
-  avatarUrl String?
   birthday DateTime
   gender Gender
   password String
@@ -45,6 +44,7 @@ model User {
   staff Staff[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Avatars Avatars[]
 }
 
 model Customer {
@@ -69,6 +69,13 @@ model Staff {
   scheduleExeptions ScheduleException[]
   appointments Appointments[]
   updatedAt DateTime @updatedAt
+}
+
+model Avatars {
+  id String @id @default(uuid())
+  imageUrl String
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Specialization {
