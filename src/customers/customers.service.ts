@@ -17,52 +17,71 @@ export class CustomersService {
 
     const { id } = await this.prisma.customer.create({
       data: {
-        ...createCustomerDto,
-        password: await hash(createCustomerDto.password),
-        birthday: new Date(createCustomerDto.birthday),
+        user: {
+          create: {
+            ...createCustomerDto,
+            password: await hash(createCustomerDto.password),
+            birthday: new Date(createCustomerDto.birthday),
+          },
+        },
       },
     });
     return id;
   }
 
-  findAll(name?: string, surname?: string) {
-    return this.prisma.customer.findMany({
+  async findAll(name?: string, surname?: string) {
+    const customers = await this.prisma.customer.findMany({
       where: {
-        name: {
-          startsWith: name,
-        },
-        surname: {
-          startsWith: surname,
+        user: {
+          name: {
+            startsWith: name,
+          },
+          surname: {
+            startsWith: surname,
+          },
         },
       },
-      omit: {
-        password: true,
-        createdAt: true,
-        updatedAt: true,
-        avatarUrl: true,
+      include: {
+        user: {
+          omit: {
+            password: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
+    return customers.map((customer) => ({
+      ...customer.user,
+      id: customer.id,
+    }));
   }
 
-  findOneById(id: string) {
-    return this.prisma.customer.findUnique({
+  async findOneById(id: string) {
+    const customer = await this.prisma.customer.findUnique({
       where: {
         id,
       },
-      omit: {
-        password: true,
+      include: {
+        user: {
+          omit: {
+            password: true,
+          },
+        },
       },
     });
+    return { ...customer.user, id: customer.id };
   }
 
   findOneByEmail(email: string) {
-    return this.prisma.customer.findUnique({
+    return this.prisma.user.findUnique({
       where: {
         email,
       },
       select: {
         id: true,
         password: true,
+        customer: true,
       },
     });
   }
@@ -73,20 +92,30 @@ export class CustomersService {
       data.birthday = new Date(updateCustomerDto.birthday);
     }
 
-    const updateUser = await this.prisma.customer.update({
+    const updatedCustomer = await this.prisma.customer.update({
       where: {
         id,
       },
-      data,
+      data: {
+        user: {
+          update: {
+            ...data,
+          },
+        },
+      },
     });
-    return updateUser;
+    return updatedCustomer;
   }
 
   async remove(id: string) {
-    await this.prisma.customer.delete({
-      where: {
-        id,
-      },
+    await this.prisma.$transaction(async (prisma) => {
+      const deletedCustomer = await prisma.customer.delete({
+        where: { id },
+        select: { userId: true },
+      });
+      await prisma.user.delete({
+        where: { id: deletedCustomer.userId },
+      });
     });
   }
 }
