@@ -38,6 +38,7 @@ model User {
   surname String
   telephone String?
   birthday DateTime
+  isEmailVerified Boolean @default(false)
   gender Gender
   password String
   customer Customer[]
@@ -45,6 +46,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Avatars Avatars[]
+  EmailVerificationToken EmailVerificationToken[]
+}
+
+model EmailVerificationToken {
+  id String @id @default(uuid())
+  token String @unique
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
 }
 
 model Customer {
