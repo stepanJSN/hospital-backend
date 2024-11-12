@@ -27,8 +27,8 @@ export class EmailConfirmationService {
     return true;
   }
 
-  private confirmEmail(userId: string) {
-    this.prisma.user.update({
+  private async confirmEmail(userId: string) {
+    await this.prisma.user.update({
       where: {
         id: userId,
       },

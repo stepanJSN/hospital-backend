@@ -13,5 +13,6 @@ import { jwtConstants } from 'src/auth/constants';
   ],
   controllers: [EmailConfirmationController],
   providers: [EmailConfirmationService],
+  exports: [EmailConfirmationService],
 })
 export class EmailConfirmationModule {}

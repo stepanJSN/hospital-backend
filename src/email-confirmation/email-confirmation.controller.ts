@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { EmailConfirmationService } from './email-confirmation.service';
+import { Response } from 'express';
 
 @Controller('email-confirmation')
 export class EmailConfirmationController {
@@ -8,12 +9,13 @@ export class EmailConfirmationController {
   ) {}
 
   @Get(':tokenId')
-  async confirm(@Param('id') id: string) {
-    const isEmailConfirmed = await this.emailConfirmationService.checkToken(id);
+  async confirm(@Param('tokenId') tokenId: string, @Res() res: Response) {
+    const isEmailConfirmed =
+      await this.emailConfirmationService.checkToken(tokenId);
 
     if (!isEmailConfirmed) {
       return;
     }
-    return { url: process.env.CLIENT_ADDRESS };
+    res.redirect(process.env.CLIENT_ADDRESS);
   }
 }

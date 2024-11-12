@@ -24,7 +24,7 @@ export class NotificationsService {
       from: `Hospital ${from ? '| ' + from : ''} <hospital@gmail.com>`,
       to,
       subject,
-      text: message,
+      html: message,
     });
   }
 

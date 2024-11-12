@@ -5,12 +5,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { hash } from 'argon2';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { messageTemplate } from 'src/notifications/notifications.config';
+import { replacePlaceholders } from 'src/utils/replacePlaceholders';
+import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
 
 @Injectable()
 export class CustomersService {
   constructor(
     private prisma: PrismaService,
     private notification: NotificationsService,
+    private emailConfirmationService: EmailConfirmationService,
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
@@ -20,7 +23,7 @@ export class CustomersService {
       throw new BadRequestException('User already exists');
     }
 
-    const { id } = await this.prisma.customer.create({
+    const { userId, id } = await this.prisma.customer.create({
       data: {
         user: {
           create: {
@@ -33,7 +36,9 @@ export class CustomersService {
     });
 
     this.notification.sendMail({
-      message: messageTemplate.confirmEmail,
+      message: replacePlaceholders(messageTemplate.confirmEmail, {
+        token: await this.emailConfirmationService.generateToken(userId),
+      }),
       to: createCustomerDto.email,
       subject: 'Email confirmation',
     });
