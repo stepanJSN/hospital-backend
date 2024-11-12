@@ -39,14 +39,14 @@ model User {
   telephone String?
   birthday DateTime
   isEmailVerified Boolean @default(false)
+  avatarUrl String?
   gender Gender
   password String
   customer Customer[]
   staff Staff[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Avatars Avatars[]
-  EmailVerificationToken EmailVerificationToken[]
+  emailVerificationToken EmailVerificationToken[]
 }
 
 model EmailVerificationToken {
@@ -79,13 +79,6 @@ model Staff {
   scheduleExeptions ScheduleException[]
   appointments Appointments[]
   updatedAt DateTime @updatedAt
-}
-
-model Avatars {
-  id String @id @default(uuid())
-  imageUrl String
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Specialization {
