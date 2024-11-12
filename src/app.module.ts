@@ -12,12 +12,23 @@ import { GoogleStorageModule } from './google-storage/google-storage.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ConfigModule } from '@nestjs/config';
 import { AvatarsModule } from './avatars/avatar.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 
 @Module({
   imports: [
     CustomersModule,
     PrismaModule,
     AuthModule,
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      },
+    }),
     StaffModule,
     SpecializationModule,
     ScheduleModule,
@@ -28,6 +39,7 @@ import { AvatarsModule } from './avatars/avatar.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    EmailConfirmationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

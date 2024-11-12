@@ -1,61 +1,38 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import {
-  NotificationRequestDto,
-  NotificationResponseDto,
-} from './dto/notification.dto';
-import { PubSubService } from 'src/pub-sub/pub-sub.service';
-import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
+// import {
+//   NotificationRequestDto,
+//   NotificationResponseDto,
+// } from './dto/notification.dto';
 
 @Injectable()
 export class NotificationsService {
-  constructor(
-    private readonly pubSubService: PubSubService,
-    private readonly httpService: HttpService,
-  ) {}
+  constructor(private readonly mailService: MailerService) {}
 
-  create(NotificationDto: NotificationRequestDto) {
-    this.pubSubService.writeMessages(JSON.stringify(NotificationDto));
+  sendMail({
+    message,
+    from,
+    to,
+    subject,
+  }: {
+    message: string;
+    to: string;
+    from?: string;
+    subject: string;
+  }) {
+    this.mailService.sendMail({
+      from: `Hospital ${from ? '| ' + from : ''} <hospital@gmail.com>`,
+      to,
+      subject,
+      text: message,
+    });
   }
 
-  async findAll(
-    receiverId: string,
-    onlyUnread: boolean,
-  ): Promise<NotificationResponseDto[]> {
-    const { data } = await firstValueFrom(
-      this.httpService
-        .get<NotificationResponseDto[]>(
-          `${process.env.NOTIFICATION_SERVICE}/${receiverId}`,
-          {
-            params: {
-              onlyUnread,
-            },
-          },
-        )
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error);
-            throw error;
-          }),
-        ),
-    );
-    return data;
-  }
+  create() {}
 
-  async markAsRead(messageId: string) {
-    const { data } = await firstValueFrom(
-      this.httpService
-        .patch(`${process.env.NOTIFICATION_SERVICE}/${messageId}`)
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error);
-            throw error;
-          }),
-        ),
-    );
-    return data;
-  }
+  async findAll() {}
+
+  async markAsRead() {}
 
   // remove(id: number) {
   //   return `This action removes a #${id} notification`;

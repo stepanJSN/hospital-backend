@@ -3,10 +3,15 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { hash } from 'argon2';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { messageTemplate } from 'src/notifications/notifications.config';
 
 @Injectable()
 export class CustomersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notification: NotificationsService,
+  ) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
     const user = await this.findOneByEmail(createCustomerDto.email);
@@ -26,6 +31,13 @@ export class CustomersService {
         },
       },
     });
+
+    this.notification.sendMail({
+      message: messageTemplate.confirmEmail,
+      to: createCustomerDto.email,
+      subject: 'Email confirmation',
+    });
+
     return id;
   }
 

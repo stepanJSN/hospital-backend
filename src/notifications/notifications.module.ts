@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
-import { HttpModule } from '@nestjs/axios';
-import { PubSubModule } from 'src/pub-sub/pub-sub.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
-  imports: [PubSubModule, HttpModule],
+  imports: [MailerModule],
   controllers: [NotificationsController],
   providers: [NotificationsService],
   exports: [NotificationsService],
