@@ -4,9 +4,9 @@ import { AppService } from './app.service';
 import { CustomersModule } from './customers/customers.module';
 import { PrismaModule } from './prisma/prisma.module';
 // import { AuthModule } from './auth/auth.module';
-import { StaffModule } from './staff/staff.module';
+// import { StaffModule } from './staff/staff.module';
 import { SpecializationModule } from './specialization/specialization.module';
-import { ScheduleModule } from './schedule/schedule.module';
+// import { ScheduleModule } from './schedule/schedule.module';
 // import { AppointmentsModule } from './appointments/appointments.module';
 import { GoogleStorageModule } from './google-storage/google-storage.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -29,9 +29,9 @@ import { EmailConfirmationModule } from './email-confirmation/email-confirmation
         },
       },
     }),
-    StaffModule,
+    // StaffModule,
     SpecializationModule,
-    ScheduleModule,
+    // ScheduleModule,
     // AppointmentsModule,
     GoogleStorageModule,
     NotificationsModule,
