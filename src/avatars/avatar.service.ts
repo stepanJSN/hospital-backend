@@ -15,15 +15,27 @@ export class AvatarsService {
 
   async upload(image: Express.Multer.File, userId: string) {
     const filename = image.originalname + Date.now();
+
+    const { avatarUrl } = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (avatarUrl) {
+      await this.storage.delete(avatarUrl);
+    }
+
     try {
       await this.storage.upload(filename, image);
     } catch (error) {
       console.log(error);
     }
-    await this.prisma.avatars.create({
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
       data: {
-        userId,
-        imageUrl: filename,
+        avatarUrl: filename,
       },
     });
 
@@ -31,30 +43,19 @@ export class AvatarsService {
   }
 
   async deleteByUserId(userId: string) {
-    const userAvatars = await this.prisma.avatars.findMany({
+    const { avatarUrl } = await this.prisma.user.findUnique({
       where: {
-        userId,
+        id: userId,
       },
     });
-    await Promise.all(
-      userAvatars.map(async (userAvatar) => {
-        await this.storage.delete(userAvatar.imageUrl);
-      }),
-    );
-    await this.prisma.avatars.deleteMany({
+    await this.storage.delete(avatarUrl);
+    await this.prisma.user.update({
       where: {
-        userId,
+        id: userId,
+      },
+      data: {
+        avatarUrl: null,
       },
     });
   }
-
-  // async delete(imageId: string) {
-  //   const deletedImage = await this.prisma.images.delete({
-  //     where: {
-  //       id: imageId,
-  //     },
-  //   });
-  //   await this.storage.delete(deletedImage.url);
-  //   return await this.getAllBySuperheroId(deletedImage.superheroId);
-  // }
 }
