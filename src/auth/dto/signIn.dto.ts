@@ -13,6 +13,6 @@ export class SignInRequestDto {
 
 export class SignInResponseDto {
   access_token: string;
-  role: Role;
+  role: Role | 'Customer';
   id: string;
 }

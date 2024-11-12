@@ -9,5 +9,5 @@ export type User = {
 export type JWTPayload = {
   id: string;
   email: string;
-  role: Role;
+  role: Role | 'Customer';
 };
