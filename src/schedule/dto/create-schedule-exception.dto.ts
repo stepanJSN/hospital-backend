@@ -1,12 +1,4 @@
-import {
-  IsBoolean,
-  IsDateString,
-  IsNumber,
-  IsOptional,
-  IsUUID,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsUUID } from 'class-validator';
 
 export class CreateScheduleExceptionDto {
   @IsUUID()
@@ -14,20 +6,4 @@ export class CreateScheduleExceptionDto {
 
   @IsDateString()
   date: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isDayOff?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(8)
-  @Max(18)
-  from?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(8)
-  @Max(18)
-  to?: number;
 }

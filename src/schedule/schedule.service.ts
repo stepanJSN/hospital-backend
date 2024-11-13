@@ -29,8 +29,6 @@ export class ScheduleService {
           },
         },
         date: new Date(createScheduleException.date),
-        from: createScheduleException.from,
-        to: createScheduleException.to,
       },
     });
   }
