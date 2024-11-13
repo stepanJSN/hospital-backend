@@ -1,25 +1,17 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-// import {
-//   NotificationRequestDto,
-//   NotificationResponseDto,
-// } from './dto/notification.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { SendMailParam } from './notifications.type';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly mailService: MailerService) {}
+  constructor(
+    private readonly mailService: MailerService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  sendMail({
-    message,
-    from,
-    to,
-    subject,
-  }: {
-    message: string;
-    to: string;
-    from?: string;
-    subject: string;
-  }) {
+  sendMail({ message, from, to, subject }: SendMailParam) {
     this.mailService.sendMail({
       from: `Hospital ${from ? '| ' + from : ''} <hospital@gmail.com>`,
       to,
@@ -28,13 +20,37 @@ export class NotificationsService {
     });
   }
 
-  create() {}
+  async create(createNotificationDto: CreateNotificationDto) {
+    await this.prisma.notifications.create({
+      data: createNotificationDto,
+    });
+  }
 
-  async findAll() {}
+  async findAll(receiverId: string, isRead?: boolean) {
+    return await this.prisma.notifications.findMany({
+      where: {
+        receiverId,
+        isRead,
+      },
+    });
+  }
 
-  async markAsRead() {}
+  async markAsRead(notificationId: string) {
+    await this.prisma.notifications.updateMany({
+      where: {
+        id: notificationId,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+  }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} notification`;
-  // }
+  async remove(notificationId: string) {
+    await this.prisma.notifications.delete({
+      where: {
+        id: notificationId,
+      },
+    });
+  }
 }

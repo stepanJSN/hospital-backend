@@ -47,6 +47,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   emailVerificationToken EmailVerificationToken[]
+  sentNotifications Notifications[] @relation("Sender")
+  receivedNotifications Notifications[] @relation("Receiver")
 }
 
 model EmailVerificationToken {
@@ -122,11 +124,13 @@ model Appointments {
 
 model Notifications {
   id String @id @default(uuid())
-  reciverId String
+  receiverId String
   senderId String
   message String
   isRead Boolean
   type MessageType @default(Info)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  receiver User @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender User @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
 }
