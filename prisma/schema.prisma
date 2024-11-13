@@ -95,8 +95,8 @@ model Schedule {
   id String @id @default(uuid())
   staffId String
   dayOfWeek Int
-  startTime Int?
-  endTime Int?
+  from Int?
+  to Int?
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
@@ -104,9 +104,9 @@ model ScheduleException {
   id String  @id @default(uuid())
   staffId String
   date DateTime
-  isDayOff Boolean
-  startTime Int? 
-  endTime Int? 
+  isDayOff Boolean?
+  from Int? 
+  to Int? 
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
