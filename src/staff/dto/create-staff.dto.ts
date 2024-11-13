@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import {
   IsDateString,
   IsEmail,
@@ -39,7 +40,7 @@ export class CreateStaffDto {
   gender: 'male' | 'female';
 
   @IsIn(['Admin', 'Staff'])
-  role: 'Admin' | 'Staff';
+  role: Role;
 
   @IsOptional()
   @IsString()
