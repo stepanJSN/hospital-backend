@@ -27,10 +27,6 @@ export class SpecializationService {
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} specialization`;
-  // }
-
   update(id: string, updateSpecializationDto: UpdateSpecializationDto) {
     return this.prisma.specialization.update({
       where: {
