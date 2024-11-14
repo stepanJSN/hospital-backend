@@ -8,4 +8,6 @@ export const messageTemplate = {
   doctorChangeSchedule: '{name} {surname} has changed his(her) work schedule',
   confirmEmail:
     '<h1>Confirm your email</h1><a href="http:localhost:8080/email-confirmation/{token}">Confirm</a>',
+  resetPassword:
+    '<h1>Reset password</h1><a href="http:localhost:3000/reset-password/{token}">Reset</a>',
 };

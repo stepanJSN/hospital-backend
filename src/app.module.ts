@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AvatarsModule } from './avatars/avatar.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
+import { ResetPasswordModule } from './reset-password/reset-password.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { EmailConfirmationModule } from './email-confirmation/email-confirmation
       isGlobal: true,
     }),
     EmailConfirmationModule,
+    ResetPasswordModule,
   ],
   controllers: [AppController],
   providers: [AppService],
