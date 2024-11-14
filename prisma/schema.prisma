@@ -78,7 +78,7 @@ model Staff {
   room Int?
   role Role @default(Doctor)
   schedule Schedule[]
-  scheduleExeptions ScheduleException[]
+  scheduleExceptions ScheduleException[]
   appointments Appointments[]
   updatedAt DateTime @updatedAt
 }
