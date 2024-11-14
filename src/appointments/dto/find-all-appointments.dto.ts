@@ -1,5 +1,5 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-
 export class FindAllAppointmentsDto {
   @IsString()
   userId: string;
@@ -24,5 +24,14 @@ export class FindAllAppointmentsDto {
 
   @IsOptional()
   @IsString()
-  customerName: string;
+  customerName?: string;
 }
+export class FindPatientAppointmentsParams extends OmitType(
+  FindAllAppointmentsDto,
+  ['returnType', 'customerName'],
+) {}
+
+export class FindStaffAppointmentsParams extends OmitType(
+  FindAllAppointmentsDto,
+  ['returnType', 'staffName'],
+) {}
