@@ -5,14 +5,19 @@ import { GoogleStorageModule } from 'src/google-storage/google-storage.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { AvatarsModule } from 'src/avatars/avatar.module';
 import { EmailConfirmationModule } from 'src/email-confirmation/email-confirmation.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     NotificationsModule,
     AvatarsModule,
     EmailConfirmationModule,
-    GoogleStorageModule.register({
-      bucketName: process.env.CUSTOMER_AVATAR_BUCKET_NAME,
+    GoogleStorageModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        bucketName: configService.get<string>('CUSTOMER_AVATAR_BUCKET_NAME'),
+      }),
     }),
   ],
   controllers: [CustomersController],

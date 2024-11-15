@@ -16,20 +16,26 @@ export class CustomersService {
     private emailConfirmationService: EmailConfirmationService,
   ) {}
 
-  async create(createCustomerDto: CreateCustomerDto) {
-    const user = await this.findOneByEmail(createCustomerDto.email);
+  private parseBirthday(birthday?: string) {
+    return birthday ? new Date(birthday) : undefined;
+  }
 
-    if (user) {
+  async create(createCustomerDto: CreateCustomerDto) {
+    const existingUser = await this.findOneByEmail(createCustomerDto.email);
+    if (existingUser) {
       throw new BadRequestException('User already exists');
     }
+
+    const hashedPassword = await hash(createCustomerDto.password);
+    const birthday = this.parseBirthday(createCustomerDto.birthday);
 
     const { userId, id } = await this.prisma.customer.create({
       data: {
         user: {
           create: {
             ...createCustomerDto,
-            password: await hash(createCustomerDto.password),
-            birthday: new Date(createCustomerDto.birthday),
+            password: hashedPassword,
+            birthday: birthday,
           },
         },
       },
@@ -46,15 +52,15 @@ export class CustomersService {
     return id;
   }
 
-  async findAll(name?: string, surname?: string) {
+  async findAll(name?: string, surname?: string, page = 1, take = 10) {
     const customers = await this.prisma.customer.findMany({
       where: {
         user: {
           name: {
-            startsWith: name,
+            startsWith: name || '',
           },
           surname: {
-            startsWith: surname,
+            startsWith: surname || '',
           },
         },
       },
@@ -67,7 +73,10 @@ export class CustomersService {
           },
         },
       },
+      skip: (page - 1) * take,
+      take: take,
     });
+
     return customers.map((customer) => ({
       ...customer.user,
       id: customer.id,
@@ -76,9 +85,7 @@ export class CustomersService {
 
   async findOneById(id: string) {
     const customer = await this.prisma.customer.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: {
         user: {
           omit: {
@@ -87,7 +94,7 @@ export class CustomersService {
         },
       },
     });
-    return { ...customer.user, id: customer.id };
+    return customer ? { ...customer.user, id: customer.id } : null;
   }
 
   findOneByEmail(email: string) {
@@ -105,20 +112,16 @@ export class CustomersService {
   }
 
   async update(id: string, updateCustomerDto: UpdateCustomerDto) {
-    const data = { ...updateCustomerDto };
-    if (updateCustomerDto.birthday) {
-      data.birthday = new Date(updateCustomerDto.birthday);
-    }
+    const data = {
+      ...updateCustomerDto,
+      birthday: this.parseBirthday(updateCustomerDto.birthday),
+    };
 
     const updatedCustomer = await this.prisma.customer.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         user: {
-          update: {
-            ...data,
-          },
+          update: { ...data },
         },
       },
     });
@@ -126,14 +129,18 @@ export class CustomersService {
   }
 
   async remove(id: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Customer not found');
+    }
+
     await this.prisma.$transaction(async (prisma) => {
-      const deletedCustomer = await prisma.customer.delete({
-        where: { id },
-        select: { userId: true },
-      });
-      await prisma.user.delete({
-        where: { id: deletedCustomer.userId },
-      });
+      await prisma.customer.delete({ where: { id } });
+      await prisma.user.delete({ where: { id: customer.userId } });
     });
   }
 }

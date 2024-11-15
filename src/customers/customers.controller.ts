@@ -3,26 +3,24 @@ import {
   Get,
   Post,
   Body,
-  ValidationPipe,
-  UsePipes,
   Patch,
   Delete,
   UseGuards,
   Param,
   Query,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from 'src/decorators/public.decorator';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { RoleGuard } from 'src/auth/role.guard';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
-import { JWTPayload } from 'src/auth/types/auth.type';
+import { RoleGuard } from 'src/guards/role.guard';
+import { CurrentUser } from 'src/decorators/user.decorator';
 import { AvatarsService } from 'src/avatars/avatar.service';
+import { OwnerOrAdminGuard } from 'src/guards/owner-admin.guard';
+import { FindAllCustomerDto } from './dto/find-all-customers.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -32,17 +30,21 @@ export class CustomersController {
   ) {}
 
   @Public()
-  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customersService.create(createCustomerDto);
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.Doctor)
   @UseGuards(RoleGuard)
   @Get()
-  findAll(@Query() query: { firstName?: string; lastName?: string }) {
-    return this.customersService.findAll(query.firstName, query.lastName);
+  findAll(@Query() findAllCustomers: FindAllCustomerDto) {
+    return this.customersService.findAll(
+      findAllCustomers.firstName,
+      findAllCustomers.lastName,
+      +findAllCustomers.page,
+      +findAllCustomers.take,
+    );
   }
 
   @Get('/:id')
@@ -55,8 +57,8 @@ export class CustomersController {
     return customer;
   }
 
-  @UseGuards(RoleGuard)
   @Patch('/current')
+  @UseGuards(OwnerOrAdminGuard)
   update(
     @CurrentUser('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
@@ -65,11 +67,8 @@ export class CustomersController {
   }
 
   @Delete('/:id')
-  async remove(@CurrentUser() user: JWTPayload, @Param('id') id: string) {
-    if (user.role !== Role.Admin && id !== user.id) {
-      throw new ForbiddenException();
-    }
-
+  @UseGuards(OwnerOrAdminGuard)
+  async remove(@Param('id') id: string) {
     await this.avatarsService.deleteByUserId(id);
     return this.customersService.remove(id);
   }

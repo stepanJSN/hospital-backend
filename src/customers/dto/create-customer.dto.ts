@@ -31,7 +31,7 @@ export class CreateCustomerDto {
   password: string;
 
   @IsDateString()
-  birthday: Date;
+  birthday: string;
 
   @IsEnum(Gender)
   gender: Gender;
