@@ -14,9 +14,9 @@ import {
 import { SpecializationService } from './specialization.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
 import { UpdateSpecializationDto } from './dto/update-specialization.dto';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { RoleGuard } from 'src/auth/role.guard';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @Controller('specialization')
 export class SpecializationController {

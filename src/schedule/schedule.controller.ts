@@ -13,10 +13,10 @@ import {
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { RoleGuard } from 'src/auth/role.guard';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
+import { RoleGuard } from 'src/guards/role.guard';
+import { CurrentUser } from 'src/decorators/user.decorator';
 import { JWTPayload } from 'src/auth/types/auth.type';
 import { CreateScheduleExceptionDto } from './dto/create-schedule-exception.dto';
 

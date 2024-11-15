@@ -8,17 +8,20 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AvatarsService } from './avatar.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateAvatarDto } from './dto/create-avatar.dto';
+import { OwnerOrAdminGuard } from 'src/guards/owner-admin.guard';
 
 @Controller('avatars')
 export class AvatarsController {
   constructor(private readonly avatarsService: AvatarsService) {}
 
   @Post()
+  @UseGuards(OwnerOrAdminGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   async create(
     @UploadedFile(

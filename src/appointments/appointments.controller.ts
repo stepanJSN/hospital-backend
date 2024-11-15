@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
+import { CurrentUser } from 'src/decorators/user.decorator';
 import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RoleGuard } from 'src/auth/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from 'src/guards/role.guard';
 import { Role } from '@prisma/client';
 import { JWTPayload } from 'src/auth/types/auth.type';
 
