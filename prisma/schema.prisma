@@ -46,17 +46,8 @@ model User {
   staff Staff[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  emailVerificationToken EmailVerificationToken[]
   sentNotifications Notifications[] @relation("Sender")
   receivedNotifications Notifications[] @relation("Receiver")
-}
-
-model EmailVerificationToken {
-  id String @id @default(uuid())
-  token String @unique
-  userId String @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
 }
 
 model Customer {
