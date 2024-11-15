@@ -11,9 +11,7 @@ import { ConfigService } from '@nestjs/config';
     {
       provide: 'StorageService',
       useFactory: (configService: ConfigService) => {
-        const bucketName = configService.get<string>('IMAGE_BUCKET_NAME', {
-          infer: true,
-        });
+        const bucketName = configService.get<string>('IMAGE_BUCKET_NAME');
         return new GoogleStorageService(configService, {
           bucketName: bucketName,
         });
