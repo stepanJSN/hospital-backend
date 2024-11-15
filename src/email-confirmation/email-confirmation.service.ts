@@ -1,6 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/auth/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -8,6 +8,7 @@ export class EmailConfirmationService {
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private configService: ConfigService,
   ) {}
 
   async generateToken(userId: string) {
@@ -15,14 +16,15 @@ export class EmailConfirmationService {
   }
 
   async checkToken(token: string) {
+    const emailSecret = this.configService.get<string>('JWT_EMAIL');
     try {
       const { id } = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.email,
+        secret: emailSecret,
       });
-      this.confirmEmail(id);
+      await this.confirmEmail(id);
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException();
+      return false;
     }
     return true;
   }
