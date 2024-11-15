@@ -6,8 +6,6 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInRequestDto } from './dto/signIn.dto';
@@ -20,41 +18,33 @@ export class AuthController {
 
   @Public()
   @Post('signin')
-  @UsePipes(new ValidationPipe())
   signIn(
     @Res({ passthrough: true }) response: Response,
     @Body() signInDto: SignInRequestDto,
   ) {
-    if (signInDto.role === 'Customer') {
-      return this.authService.signInCustomer(
-        response,
-        signInDto.email,
-        signInDto.password,
-      );
-    }
-    return this.authService.signInStaff(
-      response,
-      signInDto.email,
-      signInDto.password,
-    );
+    return this.authService.signIn(response, signInDto);
   }
 
   @Public()
   @Get('access-token')
   async getNewTokens(@Req() req: Request) {
-    const refreshTokenFromCookies = req.cookies['refreshToken'];
+    const refreshToken = this.getRefreshTokenFromCookies(req);
 
-    if (!refreshTokenFromCookies) {
+    return this.authService.getNewAccessToken(refreshToken);
+  }
+
+  private getRefreshTokenFromCookies(req: Request): string {
+    const refreshToken = req.cookies['refreshToken'];
+    if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not passed');
     }
-
-    return this.authService.getNewAccessToken(refreshTokenFromCookies);
+    return refreshToken;
   }
 
   @Public()
   @Get('logout')
-  async logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Res({ passthrough: true }) res: Response) {
     this.authService.removeRefreshTokenFromResponse(res);
-    return true;
+    return { success: true };
   }
 }

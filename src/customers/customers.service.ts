@@ -97,6 +97,7 @@ export class CustomersService {
       },
       select: {
         id: true,
+        isEmailVerified: true,
         password: true,
         customer: true,
       },

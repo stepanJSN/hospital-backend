@@ -1,10 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CustomersService } from 'src/customers/customers.service';
 import { StaffService } from 'src/staff/staff.service';
 import { JWTPayload } from './types/auth.type';
 import { verify } from 'argon2';
-import { SignInResponseDto } from './dto/signIn.dto';
+import { SignInRequestDto, SignInResponseDto } from './dto/signIn.dto';
 import { Response } from 'express';
 
 @Injectable()
@@ -15,38 +19,68 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private async generateAccessToken(user: JWTPayload): Promise<string> {
-    const payload = { id: user.id, email: user.email, role: user.role };
-    return await this.jwtService.signAsync(payload);
+  private async generateToken(
+    payload: JWTPayload,
+    expiresIn: string,
+  ): Promise<string> {
+    return this.jwtService.signAsync(payload, { expiresIn });
   }
 
-  private async generateAndSetRefreshToken(
+  private async generateAndSetToken(
     response: Response,
-    user: JWTPayload,
+    payload: JWTPayload,
+    expiresIn: string,
   ) {
-    const payload = { id: user.id, email: user.email, role: user.role };
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '3d',
-    });
+    const token = await this.generateToken(payload, expiresIn);
+    const expiresInDate = new Date();
+    expiresInDate.setDate(expiresInDate.getDate() + 3);
 
-    const expiresIn = new Date();
-    expiresIn.setDate(expiresIn.getDate() + 3);
-
-    response.cookie('refreshToken', refreshToken, {
+    response.cookie('refreshToken', token, {
       httpOnly: true,
-      expires: expiresIn,
+      expires: expiresInDate,
       secure: true,
       sameSite: 'none',
     });
   }
 
+  private async validateUserCredentials(
+    email: string,
+    password: string,
+    role: 'Customer' | 'Staff',
+  ) {
+    let user;
+    if (role === 'Customer') {
+      user = await this.customerService.findOneByEmail(email);
+    } else {
+      user = await this.staffService.findOneByEmail(email);
+    }
+
+    if (!user) throw new UnauthorizedException('Invalid login or password');
+    if (!user.isEmailVerified) {
+      throw new ForbiddenException(
+        'Email is not verified. Please verify your email to continue.',
+      );
+    }
+
+    const isValid = await verify(user.password, password);
+    if (!isValid) throw new UnauthorizedException('Invalid login or password');
+
+    return user;
+  }
+
   async getNewAccessToken(refreshToken: string) {
     const result = await this.jwtService.verifyAsync(refreshToken);
     if (!result) throw new UnauthorizedException('Invalid refresh token');
+    return await this.generateToken(result, '30m');
+  }
 
-    const accessToken = await this.generateAccessToken(result);
-
-    return accessToken;
+  signIn(
+    response: Response,
+    signInDto: SignInRequestDto,
+  ): Promise<SignInResponseDto> {
+    return signInDto.role === 'Customer'
+      ? this.signInCustomer(response, signInDto.email, signInDto.password)
+      : this.signInStaff(response, signInDto.email, signInDto.password);
   }
 
   async signInCustomer(
@@ -54,23 +88,21 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<SignInResponseDto> {
-    const user = await this.customerService.findOneByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid login or password');
-
-    const isValid = await verify(user.password, password);
-    if (!isValid) throw new UnauthorizedException('Invalid login or password');
-
-    const access_token = await this.generateAccessToken({
-      id: user.id,
+    const user = await this.validateUserCredentials(
       email,
-      role: 'Customer',
-    });
+      password,
+      'Customer',
+    );
 
-    await this.generateAndSetRefreshToken(response, {
-      id: user.id,
-      email,
-      role: 'Customer',
-    });
+    const access_token = await this.generateToken(
+      { id: user.id, email, role: 'Customer' },
+      '30m',
+    );
+    await this.generateAndSetToken(
+      response,
+      { id: user.id, email, role: 'Customer' },
+      '3d',
+    );
 
     return {
       access_token,
@@ -84,19 +116,15 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<SignInResponseDto> {
-    const user = await this.staffService.findOneByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid login or password');
+    const user = await this.validateUserCredentials(email, password, 'Staff');
 
-    const isValid = await verify(user.password, password);
-    if (!isValid) throw new UnauthorizedException('Invalid login or password');
-
-    const access_token = await this.generateAccessToken(user);
-
-    await this.generateAndSetRefreshToken(response, user);
+    const tokenPayload = { id: user.id, role: user.staff[0].role, email };
+    const access_token = await this.generateToken(tokenPayload, '30m');
+    await this.generateAndSetToken(response, tokenPayload, '3d');
 
     return {
       access_token,
-      role: user.role,
+      role: user.staff[0].role,
       id: user.id,
     };
   }

@@ -225,6 +225,7 @@ export class StaffService {
       select: {
         id: true,
         password: true,
+        isEmailVerified: true,
         staff: true,
       },
     });
