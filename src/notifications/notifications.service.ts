@@ -11,19 +11,57 @@ export class NotificationsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  sendMail({ message, from, to, subject }: SendMailParam) {
-    this.mailService.sendMail({
-      from: `Hospital ${from ? '| ' + from : ''} <hospital@gmail.com>`,
-      to,
-      subject,
-      html: message,
-    });
+  async sendMail({ message, from, to, subject }: SendMailParam) {
+    try {
+      await this.mailService.sendMail({
+        from: `Hospital ${from ? '| ' + from : ''} <hospital@gmail.com>`,
+        to,
+        subject,
+        html: message,
+      });
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
   }
 
   async create(createNotificationDto: CreateNotificationDto) {
-    await this.prisma.notifications.create({
-      data: createNotificationDto,
+    const createNotificationPromise = this.prisma.notifications.create({
+      data: {
+        subject: createNotificationDto.subject,
+        message: createNotificationDto.message,
+        type: createNotificationDto.type,
+        sender: {
+          connect: {
+            id: createNotificationDto.senderId,
+          },
+        },
+        receiver: {
+          connect: {
+            id: createNotificationDto.receiverId,
+          },
+        },
+      },
     });
+
+    if (createNotificationDto.sendOnEmail) {
+      const receiverEmail = await this.getUserEmail(
+        createNotificationDto.receiverId,
+      );
+      if (receiverEmail) {
+        const sendMailPromise = this.sendMail({
+          message: createNotificationDto.message,
+          to: receiverEmail,
+          subject: createNotificationDto.subject,
+        });
+        const [message] = await Promise.all([
+          createNotificationPromise,
+          sendMailPromise,
+        ]);
+        return message;
+      }
+      return;
+    }
+    return await createNotificationPromise;
   }
 
   async findAll(receiverId: string, isRead?: boolean) {
@@ -31,6 +69,20 @@ export class NotificationsService {
       where: {
         receiverId,
         isRead,
+      },
+      include: {
+        sender: {
+          select: {
+            name: true,
+            surname: true,
+          },
+        },
+        receiver: {
+          select: {
+            name: true,
+            surname: true,
+          },
+        },
       },
     });
   }
@@ -52,5 +104,17 @@ export class NotificationsService {
         id: notificationId,
       },
     });
+  }
+
+  private async getUserEmail(userId: string): Promise<string | null> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        email: true,
+      },
+    });
+    return user?.email || null;
   }
 }

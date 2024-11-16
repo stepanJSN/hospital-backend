@@ -7,6 +7,8 @@ import {
   Post,
   Body,
   Delete,
+  DefaultValuePipe,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -16,23 +18,28 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  async create(@Body() createNotificationDto: CreateNotificationDto) {
+    return await this.notificationsService.create(createNotificationDto);
   }
 
   @Get(':id')
-  findAll(@Param('id') id: string, @Query('isRead') isRead?: string) {
-    const parsedParams = isRead ? !!isRead : true;
-    return this.notificationsService.findAll(id, parsedParams);
+  async findAll(
+    @Param('id') id: string,
+    @Query('isRead', new DefaultValuePipe(false), ParseBoolPipe)
+    isRead: boolean,
+  ) {
+    return await this.notificationsService.findAll(id, isRead);
   }
 
   @Patch(':id')
-  markAsRead(@Param('id') notificationId: string) {
-    return this.notificationsService.markAsRead(notificationId);
+  async markAsRead(@Param('id') notificationId: string) {
+    await this.notificationsService.markAsRead(notificationId);
+    return 'Notification marked as read';
   }
 
   @Delete(':id')
-  remove(@Param('id') notificationId: string) {
-    return this.notificationsService.remove(notificationId);
+  async remove(@Param('id') notificationId: string) {
+    await this.notificationsService.remove(notificationId);
+    return 'Notification deleted successfully';
   }
 }

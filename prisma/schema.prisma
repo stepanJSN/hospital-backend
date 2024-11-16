@@ -115,7 +115,8 @@ model Notifications {
   receiverId String
   senderId String
   message String
-  isRead Boolean
+  subject String
+  isRead Boolean @default(false)
   type MessageType @default(Info)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
