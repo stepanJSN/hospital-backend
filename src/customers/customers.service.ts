@@ -20,13 +20,17 @@ export class CustomersService {
     return birthday ? new Date(birthday) : undefined;
   }
 
+  private async hashPassword(password?: string) {
+    return password ? await hash(password) : undefined;
+  }
+
   async create(createCustomerDto: CreateCustomerDto) {
     const existingUser = await this.findOneByEmail(createCustomerDto.email);
     if (existingUser) {
       throw new BadRequestException('User already exists');
     }
 
-    const hashedPassword = await hash(createCustomerDto.password);
+    const hashedPassword = await this.hashPassword(createCustomerDto.password);
     const birthday = this.parseBirthday(createCustomerDto.birthday);
 
     const { userId, id } = await this.prisma.customer.create({
@@ -115,6 +119,7 @@ export class CustomersService {
     const data = {
       ...updateCustomerDto,
       birthday: this.parseBirthday(updateCustomerDto.birthday),
+      password: await this.hashPassword(updateCustomerDto.password),
     };
 
     const updatedCustomer = await this.prisma.customer.update({
