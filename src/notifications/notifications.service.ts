@@ -2,7 +2,8 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { FindAllParam, SendMailParam } from './notifications.type';
+import { SendMailParam } from './notifications.type';
+import { FindAllNotificationsDto } from './dto/find-all-notifications.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -64,12 +65,19 @@ export class NotificationsService {
     return await createNotificationPromise;
   }
 
-  async findAll({ receiverId, isRead, page = 1, take = 1 }: FindAllParam) {
-    return await this.prisma.notifications.findMany({
-      where: {
-        receiverId,
-        isRead,
-      },
+  async findAll({
+    receiverId,
+    isRead,
+    page = 1,
+    take = 1,
+  }: FindAllNotificationsDto) {
+    const conditions = {
+      receiverId,
+      isRead,
+    };
+
+    const notifications = await this.prisma.notifications.findMany({
+      where: conditions,
       include: {
         sender: {
           select: {
@@ -87,6 +95,19 @@ export class NotificationsService {
       skip: (page - 1) * take,
       take,
     });
+
+    const totalCount = await this.prisma.notifications.count({
+      where: conditions,
+    });
+
+    return {
+      data: notifications,
+      pagination: {
+        page,
+        take,
+        total: totalCount,
+      },
+    };
   }
 
   async markAsRead(notificationId: string) {

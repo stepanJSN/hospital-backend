@@ -1,19 +1,31 @@
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class FindAllCustomerDto {
   @IsOptional()
   @IsString()
-  firstName?: string;
+  name?: string;
 
   @IsOptional()
   @IsString()
-  lastName?: string;
+  surname?: string;
 
   @IsOptional()
   @IsNumberString()
-  take?: string;
+  @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+  @Min(1)
+  take?: number;
 
   @IsOptional()
   @IsNumberString()
-  page?: string;
+  @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+  @Min(1)
+  @Max(50)
+  page?: number;
 }

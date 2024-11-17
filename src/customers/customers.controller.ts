@@ -39,12 +39,7 @@ export class CustomersController {
   @UseGuards(RoleGuard)
   @Get()
   findAll(@Query() findAllCustomers: FindAllCustomerDto) {
-    return this.customersService.findAll(
-      findAllCustomers.firstName,
-      findAllCustomers.lastName,
-      +findAllCustomers.page,
-      +findAllCustomers.take,
-    );
+    return this.customersService.findAll(findAllCustomers);
   }
 
   @Get('/:id')

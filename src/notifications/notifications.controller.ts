@@ -21,17 +21,9 @@ export class NotificationsController {
     return await this.notificationsService.create(createNotificationDto);
   }
 
-  @Get(':id')
-  async findAll(
-    @Param('id') id: string,
-    @Query() findAllNotificationsDto: FindAllNotificationsDto,
-  ) {
-    return await this.notificationsService.findAll({
-      receiverId: id,
-      isRead: findAllNotificationsDto.isRead,
-      page: +findAllNotificationsDto.page,
-      take: +findAllNotificationsDto.take,
-    });
+  @Get()
+  async findAll(@Query() findAllNotificationsDto: FindAllNotificationsDto) {
+    return await this.notificationsService.findAll(findAllNotificationsDto);
   }
 
   @Patch(':id')

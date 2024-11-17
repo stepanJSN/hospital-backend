@@ -7,6 +7,7 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 import { messageTemplate } from 'src/notifications/notifications.config';
 import { replacePlaceholders } from 'src/utils/replacePlaceholders';
 import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
+import { FindAllCustomerDto } from './dto/find-all-customers.dto';
 
 @Injectable()
 export class CustomersService {
@@ -56,18 +57,20 @@ export class CustomersService {
     return id;
   }
 
-  async findAll(name?: string, surname?: string, page = 1, take = 10) {
-    const customers = await this.prisma.customer.findMany({
-      where: {
-        user: {
-          name: {
-            startsWith: name || '',
-          },
-          surname: {
-            startsWith: surname || '',
-          },
+  async findAll({ name, surname, page, take }: FindAllCustomerDto) {
+    const conditions = {
+      user: {
+        name: {
+          startsWith: name || '',
+        },
+        surname: {
+          startsWith: surname || '',
         },
       },
+    };
+
+    const customers = await this.prisma.customer.findMany({
+      where: conditions,
       include: {
         user: {
           omit: {
@@ -81,10 +84,19 @@ export class CustomersService {
       take: take,
     });
 
-    return customers.map((customer) => ({
-      ...customer.user,
-      id: customer.id,
-    }));
+    const totalCount = await this.prisma.customer.count({ where: conditions });
+
+    return {
+      data: customers.map((customer) => ({
+        ...customer.user,
+        id: customer.id,
+      })),
+      pagination: {
+        page,
+        take,
+        total: totalCount,
+      },
+    };
   }
 
   async findOneById(id: string) {
