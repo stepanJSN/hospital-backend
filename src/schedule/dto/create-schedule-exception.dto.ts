@@ -2,7 +2,7 @@ import { IsDateString, IsUUID } from 'class-validator';
 
 export class CreateScheduleExceptionDto {
   @IsUUID()
-  staffId: string;
+  userId: string;
 
   @IsDateString()
   date: string;

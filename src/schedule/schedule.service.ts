@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateScheduleExceptionDto } from './dto/create-schedule-exception.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -9,11 +10,11 @@ export class ScheduleService {
 
   async create(createScheduleDto: CreateScheduleDto) {
     const numberOfDays = await this.prisma.schedule.createMany({
-      data: createScheduleDto.schedule.map((elem) => ({
-        staffId: createScheduleDto.staffId,
-        dayOfWeek: elem.dayOfWeek,
-        startTime: elem.startTime,
-        endTime: elem.endTime,
+      data: new Array(7).map((_, index) => ({
+        staffId: createScheduleDto.userId,
+        dayOfWeek: index,
+        startTime: null,
+        endTime: null,
       })),
     });
 
@@ -25,7 +26,7 @@ export class ScheduleService {
       data: {
         staff: {
           connect: {
-            id: createScheduleException.staffId,
+            id: createScheduleException.userId,
           },
         },
         date: new Date(createScheduleException.date),
@@ -39,7 +40,6 @@ export class ScheduleService {
         staffId,
       },
       omit: {
-        id: true,
         staffId: true,
       },
     });
@@ -53,6 +53,16 @@ export class ScheduleService {
       },
     });
     return { schedule, scheduleException };
+  }
+
+  async update(updateScheduleDto: UpdateScheduleDto) {
+    return await this.prisma.schedule.update({
+      where: { id: updateScheduleDto.id },
+      data: {
+        from: updateScheduleDto.from,
+        to: updateScheduleDto.to,
+      },
+    });
   }
 
   async remove(staffId: string) {
