@@ -8,15 +8,17 @@ export class ResetPasswordController {
   constructor(private readonly resetPasswordService: ResetPasswordService) {}
 
   @Post()
-  reset(@Body() resetPasswordDto: ResetPasswordDto) {
-    this.resetPasswordService.generateToken(resetPasswordDto.email);
+  async reset(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.resetPasswordService.generateToken(resetPasswordDto.email);
+    return { message: 'Password reset email sent successfully' };
   }
 
   @Post('new-password')
-  updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
-    this.resetPasswordService.updatePassword(
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
+    await this.resetPasswordService.updatePassword(
       updatePasswordDto.token,
       updatePasswordDto.password,
     );
+    return { message: 'Password updated successfully' };
   }
 }

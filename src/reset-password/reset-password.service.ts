@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/auth/constants';
+import { hash } from 'argon2';
 import { messageTemplate } from 'src/notifications/notifications.config';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -12,34 +13,41 @@ export class ResetPasswordService {
     private jwtService: JwtService,
     private notification: NotificationsService,
     private prisma: PrismaService,
+    private configService: ConfigService,
   ) {}
 
   async generateToken(email: string) {
+    const token = await this.jwtService.signAsync({ email });
+    const message = replacePlaceholders(messageTemplate.resetPassword, {
+      token,
+    });
+
     this.notification.sendMail({
-      message: replacePlaceholders(messageTemplate.resetPassword, {
-        token: await this.jwtService.signAsync({ email }),
-      }),
+      message,
       to: email,
       subject: 'Reset password',
     });
   }
 
   async updatePassword(token: string, newPassword: string) {
+    const resetPasswordSecret =
+      this.configService.get<string>('JWT_RESET_PASSWORD');
     try {
       const { email } = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.resetPassword,
+        secret: resetPasswordSecret,
       });
+      const hashedPassword = await hash(newPassword);
 
       await this.prisma.user.update({
         where: {
           email,
         },
         data: {
-          password: newPassword,
+          password: hashedPassword,
         },
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error updating password:', error);
     }
   }
 }
