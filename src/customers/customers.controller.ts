@@ -58,7 +58,6 @@ export class CustomersController {
   }
 
   @Patch('/current')
-  @UseGuards(OwnerOrAdminGuard)
   update(
     @CurrentUser('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
@@ -66,9 +65,9 @@ export class CustomersController {
     return this.customersService.update(id, updateCustomerDto);
   }
 
-  @Delete('/:id')
+  @Delete('/:userId')
   @UseGuards(OwnerOrAdminGuard)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('userId') id: string) {
     await this.avatarsService.deleteByUserId(id);
     return this.customersService.remove(id);
   }

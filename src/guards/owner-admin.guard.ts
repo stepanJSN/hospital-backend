@@ -13,7 +13,7 @@ export class OwnerOrAdminGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const user: JWTPayload = request.user;
-    const userId = request.params.id;
+    const userId = request.params.userId || request.body.userId;
 
     if (user.role === Role.Admin || user.id === userId) {
       return true;
