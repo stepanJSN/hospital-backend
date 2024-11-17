@@ -8,8 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
-  UsePipes,
-  ValidationPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { SpecializationService } from './specialization.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
@@ -17,6 +16,7 @@ import { UpdateSpecializationDto } from './dto/update-specialization.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/guards/role.guard';
+import { FindAllSpecializationsDto } from './dto/find-all-specializations.dto';
 
 @Controller('specialization')
 export class SpecializationController {
@@ -24,23 +24,25 @@ export class SpecializationController {
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
-  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createSpecializationDto: CreateSpecializationDto) {
     return this.specializationService.create(createSpecializationDto);
   }
 
   @Get()
-  findAll(@Query() query: CreateSpecializationDto) {
-    return this.specializationService.findAllByTitle(query.title);
+  findAll(@Query() query: FindAllSpecializationsDto) {
+    return this.specializationService.findAllByTitle(
+      query.title,
+      query.page,
+      query.take,
+    );
   }
 
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
-  @UsePipes(new ValidationPipe())
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateSpecializationDto: UpdateSpecializationDto,
   ) {
     return this.specializationService.update(id, updateSpecializationDto);
@@ -49,7 +51,7 @@ export class SpecializationController {
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.specializationService.remove(id);
   }
 }
