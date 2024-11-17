@@ -2,7 +2,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { SendMailParam } from './notifications.type';
+import { FindAllParam, SendMailParam } from './notifications.type';
 
 @Injectable()
 export class NotificationsService {
@@ -64,7 +64,7 @@ export class NotificationsService {
     return await createNotificationPromise;
   }
 
-  async findAll(receiverId: string, isRead?: boolean) {
+  async findAll({ receiverId, isRead, page = 1, take = 1 }: FindAllParam) {
     return await this.prisma.notifications.findMany({
       where: {
         receiverId,
@@ -84,6 +84,8 @@ export class NotificationsService {
           },
         },
       },
+      skip: (page - 1) * take,
+      take,
     });
   }
 

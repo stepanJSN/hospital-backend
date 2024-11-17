@@ -4,3 +4,10 @@ export type SendMailParam = {
   from?: string;
   subject: string;
 };
+
+export type FindAllParam = {
+  receiverId: string;
+  isRead?: boolean;
+  page?: number;
+  take?: number;
+};

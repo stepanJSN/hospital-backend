@@ -7,11 +7,10 @@ import {
   Post,
   Body,
   Delete,
-  DefaultValuePipe,
-  ParseBoolPipe,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { FindAllNotificationsDto } from './dto/find-all-notifications.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -25,10 +24,14 @@ export class NotificationsController {
   @Get(':id')
   async findAll(
     @Param('id') id: string,
-    @Query('isRead', new DefaultValuePipe(false), ParseBoolPipe)
-    isRead: boolean,
+    @Query() findAllNotificationsDto: FindAllNotificationsDto,
   ) {
-    return await this.notificationsService.findAll(id, isRead);
+    return await this.notificationsService.findAll({
+      receiverId: id,
+      isRead: findAllNotificationsDto.isRead,
+      page: +findAllNotificationsDto.page,
+      take: +findAllNotificationsDto.take,
+    });
   }
 
   @Patch(':id')
