@@ -3,6 +3,7 @@ import {
   IsDateString,
   IsEmail,
   IsIn,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -17,10 +18,12 @@ export class CreateStaffDto {
 
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   name: string;
 
   @IsString()
   @MinLength(2)
+  @MaxLength(20)
   surname: string;
 
   @IsOptional()
@@ -34,7 +37,7 @@ export class CreateStaffDto {
   password: string;
 
   @IsDateString()
-  birthday: Date;
+  birthday: string;
 
   @IsIn(['male', 'female'])
   gender: 'male' | 'female';
@@ -51,7 +54,7 @@ export class CreateStaffDto {
   experience?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   room?: number;
 
   @IsOptional()
