@@ -59,7 +59,7 @@ export class CustomersService {
     return id;
   }
 
-  async findAll({ name, surname, page, take }: FindAllCustomerDto) {
+  async findAll({ name, surname, page = 1, take = 10 }: FindAllCustomerDto) {
     const conditions = {
       user: {
         name: {

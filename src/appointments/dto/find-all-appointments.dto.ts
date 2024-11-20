@@ -1,10 +1,16 @@
-import { OmitType } from '@nestjs/mapped-types';
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsIn,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 export class FindAllAppointmentsDto {
   @IsString()
   userId: string;
 
-  @IsOptional()
   @IsIn(['staff', 'customer'])
   returnType: 'staff' | 'customer';
 
@@ -20,18 +26,22 @@ export class FindAllAppointmentsDto {
 
   @IsOptional()
   @IsString()
-  staffName: string;
+  staffName?: string;
 
   @IsOptional()
   @IsString()
   customerName?: string;
-}
-export class FindPatientAppointmentsParams extends OmitType(
-  FindAllAppointmentsDto,
-  ['returnType', 'customerName'],
-) {}
 
-export class FindStaffAppointmentsParams extends OmitType(
-  FindAllAppointmentsDto,
-  ['returnType', 'staffName'],
-) {}
+  @IsOptional()
+  @IsNumberString()
+  @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @IsNumberString()
+  @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+  @Min(1)
+  @Max(50)
+  take?: number;
+}

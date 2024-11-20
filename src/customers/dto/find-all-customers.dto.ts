@@ -20,12 +20,12 @@ export class FindAllCustomerDto {
   @IsNumberString()
   @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
   @Min(1)
+  @Max(50)
   take?: number;
 
   @IsOptional()
   @IsNumberString()
   @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
   @Min(1)
-  @Max(50)
   page?: number;
 }

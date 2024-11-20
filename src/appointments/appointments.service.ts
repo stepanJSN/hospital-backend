@@ -2,10 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import dayjs from 'dayjs';
-import {
-  FindPatientAppointmentsParams,
-  FindStaffAppointmentsParams,
-} from './dto/find-all-appointments.dto';
+import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { CustomersService } from 'src/customers/customers.service';
@@ -46,15 +43,11 @@ export class AppointmentsService {
       },
     });
 
-    if (conflictingAppointments.some((app) => app.staffId === staffId)) {
+    if (conflictingAppointments.length > 0) {
       throw new BadRequestException(
-        'You have another appointment with this doctor',
-      );
-    }
-
-    if (conflictingAppointments.some((app) => app.staffId !== staffId)) {
-      throw new BadRequestException(
-        'You have an appointment with another doctor at this time. Check your appointments and try again.',
+        conflictingAppointments.some((app) => app.staffId === staffId)
+          ? 'You have another appointment with this doctor'
+          : 'You have an appointment with another doctor at this time. Check your appointments and try again.',
       );
     }
 
@@ -77,93 +70,79 @@ export class AppointmentsService {
         customerSurname: user.surname,
         date: dayjs(dateTime).format('DD.MM.YYYY HH:mm'),
       }),
+      subject: 'New appointment',
     });
 
     return newAppointment;
   }
 
-  async findPatientAppointments(data: FindPatientAppointmentsParams) {
-    const { fromDate, toDate, isCompleted, staffName, userId } = data;
+  async findAppointments({
+    fromDate,
+    toDate,
+    isCompleted,
+    returnType,
+    staffName,
+    customerName,
+    userId,
+    page = 1,
+    take = 10,
+  }: FindAllAppointmentsDto) {
     const dateTimeFilter = this.createDateTimeFilter(fromDate, toDate);
-
-    return this.prisma.appointments.findMany({
-      where: {
-        customerId: userId,
-        ...dateTimeFilter,
-        ...(isCompleted === 'true'
-          ? { isCompleted: true }
-          : { isCompleted: false }),
-        ...(staffName && {
-          staff: {
-            user: {
-              name: staffName.split(' ')[0],
-              surname: staffName.split(' ')[1],
-            },
-          },
-        }),
+    const isStaff = returnType === 'staff';
+    const nameFilter = (customerName || staffName) && {
+      user: {
+        name: isStaff ? staffName.split(' ')[0] : customerName.split(' ')[0],
+        surname: isStaff ? staffName.split(' ')[1] : customerName.split(' ')[1],
       },
+    };
+
+    const conditions = {
+      customerId: userId,
+      ...dateTimeFilter,
+      ...(isCompleted === 'true'
+        ? { isCompleted: true }
+        : { isCompleted: false }),
+      ...nameFilter,
+    };
+
+    const appointments = await this.prisma.appointments.findMany({
+      where: conditions,
       select: {
-        id: true,
-        dateTime: true,
-        isCompleted: true,
-        staff: {
-          select: {
-            user: {
-              select: {
-                name: true,
-                surname: true,
+        ...(isStaff
+          ? {
+              customer: {
+                select: {
+                  id: true,
+                  user: { select: { name: true, surname: true } },
+                },
               },
-            },
-            specialization: {
-              select: {
-                title: true,
+            }
+          : {
+              staff: {
+                select: {
+                  user: { select: { name: true, surname: true } },
+                  specialization: { select: { title: true } },
+                },
               },
-            },
-          },
-        },
+            }),
       },
       orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
+      skip: (page - 1) * take,
+      take,
     });
-  }
 
-  async findStaffAppointments(data: FindStaffAppointmentsParams) {
-    const { fromDate, toDate, isCompleted, customerName, userId } = data;
-    const dateTimeFilter = this.createDateTimeFilter(fromDate, toDate);
-
-    return this.prisma.appointments.findMany({
-      where: {
-        staffId: userId,
-        ...dateTimeFilter,
-        ...(isCompleted === 'true'
-          ? { isCompleted: true }
-          : { isCompleted: false }),
-        ...(customerName && {
-          customer: {
-            user: {
-              name: customerName.split(' ')[0],
-              surname: customerName.split(' ')[1],
-            },
-          },
-        }),
-      },
-      select: {
-        id: true,
-        dateTime: true,
-        isCompleted: true,
-        customer: {
-          select: {
-            id: true,
-            user: {
-              select: {
-                name: true,
-                surname: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: [{ isCompleted: 'asc' }, { dateTime: 'asc' }],
+    const totalCount = await this.prisma.appointments.count({
+      where: conditions,
     });
+
+    return {
+      data: appointments,
+      pagination: {
+        page,
+        take,
+        total: totalCount,
+      },
+    };
   }
 
   private createDateTimeFilter(fromDate?: string, toDate?: string) {
@@ -219,6 +198,7 @@ export class AppointmentsService {
       receiverId,
       message,
       type: 'Warning',
+      subject: 'Appointment cancellation',
     });
   }
 }

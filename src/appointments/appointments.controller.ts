@@ -7,9 +7,8 @@ import {
   Delete,
   Query,
   Patch,
-  UsePipes,
-  ValidationPipe,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -25,7 +24,6 @@ import { JWTPayload } from 'src/auth/types/auth.type';
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
-  @UsePipes(new ValidationPipe())
   @Post()
   create(
     @CurrentUser('id') id: string,
@@ -34,23 +32,16 @@ export class AppointmentsController {
     return this.appointmentsService.create(createAppointmentDto, id);
   }
 
-  @UsePipes(new ValidationPipe())
   @Get()
   findAll(@Query() findAllAppointments: FindAllAppointmentsDto) {
-    if (findAllAppointments.returnType === 'customer') {
-      return this.appointmentsService.findPatientAppointments(
-        findAllAppointments,
-      );
-    }
-    return this.appointmentsService.findStaffAppointments(findAllAppointments);
+    return this.appointmentsService.findAppointments(findAllAppointments);
   }
 
   @Roles(Role.Admin, Role.Doctor)
   @UseGuards(RoleGuard)
-  @UsePipes(new ValidationPipe())
   @Patch(':id')
   changeStatus(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() changeStatusDto: ChangeStatusDto,
   ) {
     return this.appointmentsService.changeStatus(id, changeStatusDto);
