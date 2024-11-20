@@ -8,12 +8,14 @@ import { messageTemplate } from 'src/notifications/notifications.config';
 import { replacePlaceholders } from 'src/utils/replacePlaceholders';
 import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
 import { FindAllCustomerDto } from './dto/find-all-customers.dto';
+import { AvatarsService } from 'src/avatars/avatar.service';
 
 @Injectable()
 export class CustomersService {
   constructor(
     private prisma: PrismaService,
     private notification: NotificationsService,
+    private avatarsService: AvatarsService,
     private emailConfirmationService: EmailConfirmationService,
   ) {}
 
@@ -154,7 +156,7 @@ export class CustomersService {
     if (!customer) {
       throw new BadRequestException('Customer not found');
     }
-
+    await this.avatarsService.deleteByUserId(id);
     await this.prisma.$transaction(async (prisma) => {
       await prisma.customer.delete({ where: { id } });
       await prisma.user.delete({ where: { id: customer.userId } });

@@ -18,16 +18,12 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/guards/role.guard';
 import { CurrentUser } from 'src/decorators/user.decorator';
-import { AvatarsService } from 'src/avatars/avatar.service';
 import { OwnerOrAdminGuard } from 'src/guards/owner-admin.guard';
 import { FindAllCustomerDto } from './dto/find-all-customers.dto';
 
 @Controller('customers')
 export class CustomersController {
-  constructor(
-    private readonly customersService: CustomersService,
-    private readonly avatarsService: AvatarsService,
-  ) {}
+  constructor(private readonly customersService: CustomersService) {}
 
   @Public()
   @Post()
@@ -63,7 +59,6 @@ export class CustomersController {
   @Delete('/:userId')
   @UseGuards(OwnerOrAdminGuard)
   async remove(@Param('userId') id: string) {
-    await this.avatarsService.deleteByUserId(id);
     return this.customersService.remove(id);
   }
 }
