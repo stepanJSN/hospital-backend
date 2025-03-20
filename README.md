@@ -8,7 +8,7 @@
 
 “Hospital” is an application to make doctor's appointments more comfortable. It offers a user-friendly interface for all users: administrators, patients and doctors. 
 
-🌐Frontend(*This is a new version of the API, so the frontend will temporarily not work with it*): https://github.com/Stepan22-prog/hospital-frontend
+🌐Frontend(*This is a new version of the API, so the frontend will temporarily not work with it*): https://github.com/stepanJSN/hospital-frontend
 
 ## 🎯 Functionality
 **👥 Patients(customers)**
@@ -48,7 +48,7 @@
  - ☁️Cloud Storage
 
 ## 🚀 Getting started
-1.  Clone project's repo:  `git clone https://github.com/Stepan22-prog/hospital-backend.git`
+1.  Clone project's repo:  `git clone https://github.com/stepanJSN/hospital-backend.git`
 2.  Create MySQL database
 3.  Create an **.env** file and fill it in according to the example in **.env.example**
 5.  Run:  `npm install`
@@ -56,8 +56,3 @@
 
 ## 🌐 Visit website
 The application was uploaded to GSP: (temporarily unavailable)
-
-## 👨‍💻 Author
-- **Stepan Stadniuk**
-- **GitHub**: [Stepan22-prog](https://github.com/Stepan22-prog)
-- **LinkedIn**: [Stepan Stadniuk](https://github.com/Stepan22-prog/hospital-frontend)
